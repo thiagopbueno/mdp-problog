@@ -4,8 +4,8 @@ from problog.tasks.dtproblog import dtproblog
 from problog.program import PrologString
 
 objects = """computer(c1).
-computer(c3).
-computer(c2)."""
+computer(c2).
+computer(c3)."""
 
 decision_facts = """
 ?::reboot(X) :- computer(X)."""
@@ -51,9 +51,9 @@ def state_rule(s, valuation):
     body = []
     for j in range(len(valuation)):
         if valuation[j] == 1:
-            body.append("was_running(c{id})".format(id=j+1))
+            body.append("running(c{id})".format(id=j+1))
         else:
-            body.append("not(was_running(c{id}))".format(id=j+1))
+            body.append("not(running(c{id}))".format(id=j+1))
     body = ','.join(body)
     state_rule = "{head} :- {body}. ".format(head=head, body=body)
     return state_rule
@@ -79,6 +79,8 @@ def initialization(n, states, state_rules, future_utility_attributes, gamma):
         future_utility_attributes.append(future_utility_attribute(i, 0.0, gamma))
         valuation = next_valuation(valuation)
 
+import time
+
 # initialization
 n = len(objects.split())
 states = []
@@ -91,28 +93,38 @@ state_rules = '\n'.join(state_rules) + '\n'
 model += state_rules
 
 # value iteration
-epsilon = 0.1
+epsilon = 0.01
 i = 0
 while True:
+    start = time.clock()
+    print(">> iteration #{0} ...".format(i))
+
     finished = True
     value_function = '\n'.join(future_utility_attributes) + '\n'
     m = model + value_function
+
+    # print(">> Model:")
+    # print(m)
+
     i += 1
-    print("iteration #{0}".format(i))
     for s in range(2**n):
         state = states[s]
         score, decisions = solve_problog(m + state)
-        print("state=s{s} | score={score:5.2f} | predicates={{ {state} }}".format(s=s, score=score, state=state))
+        print("state=s{s} | score={score:12.6f} | predicates={{ {state} }}".format(s=s, score=score, state=state))
         if abs(future_utilities[s] - score) > epsilon *(1-gamma)/(2*gamma):
             finished = False
         future_utilities[s] = score
         future_utility_attributes[s] = future_utility_attribute(s, score, gamma)
-    print()
+    end = time.clock()
+
+    print("<< executed in {0:.3f} sec.\n".format(end-start))
+
     if finished:
+        # print policy
         for s in range(2**n):
             state = states[s]
             score, decisions = solve_problog(m + state)
-            print("state=s{s} | predicates={{ {state} }} :".format(s=s, state=state))
+            print("state=s{s} | predicates={{ {state} }} ->".format(s=s, state=state))
             for name, value in decisions.items():
                 print ("\t%s: %s" % (name, value))
             print()
