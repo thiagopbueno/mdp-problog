@@ -1,5 +1,7 @@
 #! /usr/bin/env python3
 
+import sys
+
 from problog.tasks.dtproblog import dtproblog
 from problog.program import PrologString
 
@@ -8,21 +10,38 @@ computer(c2).
 computer(c3)."""
 
 decision_facts = """
-?::reboot(X) :- computer(X)."""
+?::a1.
+?::a2.
+reboot(c1) :- a1, not(a2).
+reboot(c2) :- not(a1), a2.
+reboot(c3) :- a1, a2."""
 
 utility_attributes = """
-utility(reboot(X), -0.75) :- computer(X).
-utility(running(X), 1.00) :- computer(X)."""
+utility(reboot(C), -0.75) :- computer(C).
+utility(running(C,1), 1.00) :- computer(C)."""
 
+# topology
 background_knowledge = """
-1.00::running(X) :- reboot(X), computer(X).
-0.10::running(X) :- not(reboot(X)), not(was_running(X)), computer(X).
-1.00::running(X) :- not(reboot(X)), was_running(X), was_running(Y), was_running(Z), Y \== Z, computer(X), computer(Y), computer(Z).
-0.83::running(X) :- not(reboot(X)), was_running(X), not(was_running(Y)), was_running(Z), Y \== Z, computer(X), computer(Y), computer(Z).
-0.56::running(X) :- not(reboot(X)), was_running(X), not(was_running(Y)), not(was_running(Z)), Y \== Z, computer(X), computer(Y), computer(Z).
+connected(c1,[c2,c3]).
+connected(c2,[c1]).
+connected(c3,[c1]).
+accTotal([],A,A).
+accTotal([_|T],A,X) :- B is A+1, accTotal(T,B,X).
+total(L,T) :- accTotal(L,0,T).
+accAlive([],A,A).
+accAlive([H|T],A,X) :- running(H,0), B is A+1, accAlive(T,B,X).
+accAlive([H|T],A,X) :- not(running(H,0)), B is A, accAlive(T,B,X).
+alive(L,A) :- accAlive(L,0,A).
+total_connected(C,T) :- connected(C,L), total(L,T).
+total_running(C,R)   :- connected(C,L), alive(L,R).
+1.00::running(C,1) :- reboot(C).
+0.10::running(C,1) :- not(reboot(C)), not(running(C,0)).
+P::running(C,1) :- not(reboot(C)), running(C,0), total_connected(C,T), total_running(C,R), P is 0.45+0.50*R/T.
 """
 
 model = objects + decision_facts + utility_attributes + background_knowledge
+print(">> Model:")
+print(model)
 
 def initial_valuation(n):
     return [0]*n
@@ -37,13 +56,12 @@ def next_valuation(valuation):
     return valuation
 
 def state_predicates(valuation):
-    if sum(valuation) == 0:
-        state = "was_running(fake). "
-    else:
-        state = ""
-        for j in range(n):
-            if valuation[j] == 1:
-                state += "was_running(c{id}). ".format(id=j+1)
+    state = ""
+    for j in range(n):
+        if valuation[j] == 1:
+            state += "1.0::running(c{id},0). ".format(id=j+1)
+        else:
+            state += "0.0::running(c{id},0). ".format(id=j+1)
     return state
 
 def state_rule(s, valuation):
@@ -51,9 +69,9 @@ def state_rule(s, valuation):
     body = []
     for j in range(len(valuation)):
         if valuation[j] == 1:
-            body.append("running(c{id})".format(id=j+1))
+            body.append("running(c{id},1)".format(id=j+1))
         else:
-            body.append("not(running(c{id}))".format(id=j+1))
+            body.append("not(running(c{id},1))".format(id=j+1))
     body = ','.join(body)
     state_rule = "{head} :- {body}. ".format(head=head, body=body)
     return state_rule
@@ -94,6 +112,7 @@ model += state_rules
 
 # value iteration
 epsilon = 0.01
+
 i = 0
 while True:
     start = time.clock()
@@ -103,28 +122,38 @@ while True:
     value_function = '\n'.join(future_utility_attributes) + '\n'
     m = model + value_function
 
-    # print(">> Model:")
-    # print(m)
-
     i += 1
     for s in range(2**n):
         state = states[s]
+        # print(m+state)
+        # break
+
         score, decisions = solve_problog(m + state)
-        print("state=s{s} | score={score:12.6f} | predicates={{ {state} }}".format(s=s, score=score, state=state))
-        if abs(future_utilities[s] - score) > epsilon *(1-gamma)/(2*gamma):
+        error = abs(future_utilities[s] - score)
+
+        print("state=s{s:<12.0f} | score={score:<12.6f} | error={err:<.6f}".format(s=s, score=score, err=error))
+
+        if error > epsilon *(1-gamma)/(2*gamma):
             finished = False
+
         future_utilities[s] = score
         future_utility_attributes[s] = future_utility_attribute(s, score, gamma)
-    end = time.clock()
 
-    print("<< executed in {0:.3f} sec.\n".format(end-start))
+    end = time.clock()
+    print("<< executed in {time:.3f} sec.\n".format(time=end-start))
+
+    # break
 
     if finished:
         # print policy
         for s in range(2**n):
             state = states[s]
             score, decisions = solve_problog(m + state)
-            print("state=s{s} | predicates={{ {state} }} ->".format(s=s, state=state))
+            state = state.split('. ')
+            state = filter(lambda x: x.startswith("1.0"), state)
+            state = map(lambda x: x[5:], state)
+            state = ', '.join(state)
+            print("state=s{s} | predicates={{{state}}} ->".format(s=s, state=state))
             for name, value in decisions.items():
                 print ("\t%s: %s" % (name, value))
             print()
