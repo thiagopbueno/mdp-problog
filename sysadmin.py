@@ -39,7 +39,11 @@ total_running(C,R)   :- connected(C,L), alive(L,R).
 P::running(C,1) :- not(reboot(C)), running(C,0), total_connected(C,T), total_running(C,R), P is 0.45+0.50*R/T.
 """
 
-model = objects + decision_facts + utility_attributes + background_knowledge
+# states
+states_vars="""
+state(running(C)) :- computer(C)."""
+
+model = objects + states_vars + decision_facts + utility_attributes + background_knowledge
 print(">> Model:")
 print(model)
 
@@ -65,7 +69,7 @@ def state_predicates(valuation):
     return state
 
 def state_rule(s, valuation):
-    head = "state(s{s})".format(s=s)
+    head = "s{s}".format(s=s)
     body = []
     for j in range(len(valuation)):
         if valuation[j] == 1:
@@ -77,7 +81,7 @@ def state_rule(s, valuation):
     return state_rule
 
 def future_utility_attribute(s, value, gamma):
-    utility_attribute = "utility(state(s{s}), {value}). ".format(s=s, gamma=gamma, value=gamma*value)
+    utility_attribute = "utility(s{s}, {value}). ".format(s=s, gamma=gamma, value=gamma*value)
     return utility_attribute
 
 def solve_problog(model, debug=False):
