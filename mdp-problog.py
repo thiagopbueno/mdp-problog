@@ -56,8 +56,10 @@ def value_iteration(epsilon, gamma, gp, action_facts, state_facts, utilities):
 	start = time.clock()
 	print(">> iteration #{0} ...".format(i))
 	value_function, policy, utilities, stats = update(gp, gamma, action_facts, state_facts, utilities)
-	for s in sorted(value_function.keys()):
-		print("V({0}) = {1:<12.6f}".format(s, value_function[s]))
+	states = [int(k[1:]) for k in value_function.keys()]
+	for s in sorted(states):
+		k = "s{}".format(s)
+		print("V(s{0})\t= {1:<12.6f}".format(s, value_function[k]))
 	end = time.clock()
 	print("<< executed in {time:.3f} sec.\n".format(time=end-start))
 
@@ -68,9 +70,11 @@ def value_iteration(epsilon, gamma, gp, action_facts, state_facts, utilities):
 		new_value_function, policy, utilities, stats = update(gp, gamma, action_facts, state_facts, utilities)
 		error = [ abs(new_value_function[s] - value_function[s]) for s in value_function.keys() ]
 
-		print("error = {0:.5f}".format(max(error)))
-		for s in sorted(new_value_function.keys()):
-			print("V({0}) = {1:<12.6f}".format(s, new_value_function[s]))
+		states = [int(k[1:]) for k in new_value_function.keys()]
+		for s in sorted(states):
+			k = "s{}".format(s)
+			print("V(s{0})\t= {1:<12.6f}".format(s, new_value_function[k]))
+		print("@ error = {0:.5f}".format(max(error)))
 
 		end = time.clock()
 		print("<< executed in {time:.3f} sec.\n".format(time=end-start))
@@ -220,7 +224,7 @@ if __name__ == '__main__':
 	gp, action_facts, state_facts, utilities = init(model)
 
 	gamma = 0.9
-	epsilon = 0.01
+	epsilon = 0.1
 
 	start = time.clock()
 	value_function, policy, iterations = value_iteration(epsilon, gamma, gp, action_facts, state_facts, utilities)
