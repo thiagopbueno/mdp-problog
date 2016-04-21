@@ -22,13 +22,6 @@ def init(model):
 
 	# find state variables and build state atoms
 	state_functors, current_state_atoms, next_state_atoms = build_state_atoms(eng, db)
-	# print(">> State functors:", end="")
-	# print(state_functors)
-	# print(">> Current state atoms: ", end="")
-	# print(current_state_atoms)
-	# print(">> Next state atoms:    ", end="")
-	# print(next_state_atoms)
-	# print()
 
 	# add state decision facts
 	for t in current_state_atoms:
@@ -41,28 +34,19 @@ def init(model):
 	# print(">> Next state rules:")
 	for r in state_rules:
 		db.add_clause(r)
-		# print(r)
-	# print()
 
 	# print(">> Next state future values:")
 	for u in state_values:
 		db.add_fact(u)
-		# print(u)
-	# print()
 
 	# get utility attributes
-	# print(">> Utility attributes:")
 	utilities = dict(eng.query(db, Term('utility', None, None)))
-	# print(utilities)
-	# print()
 
 	# perform relevant grounding w.r.t. utility nodes
 	gp = eng.ground_all(db, target=None, queries=utilities.keys())
 
+	# get decision facts for action and state variables
 	action_facts, state_facts = get_decision_facts(gp, state_functors)
-	# print(action_facts)
-	# print(state_facts)
-	# print()
 
 	return gp, action_facts, state_facts, utilities
 
@@ -91,7 +75,7 @@ def value_iteration(epsilon, gamma, gp, action_facts, state_facts, utilities):
 		end = time.clock()
 		print("<< executed in {time:.3f} sec.\n".format(time=end-start))
 
-		if max(error) <= epsilon * (1-gamma) / (2*gamma):
+		if max(error) <= epsilon*(1-gamma)/(gamma):
 			break
 
 		value_function = new_value_function.copy()
@@ -121,24 +105,17 @@ def search_exhaustive(formula, actions, states, utilities):
 
 	for i in range(0, 1 << len(states)):
 		state_choices = num2bits(i, len(states))
-		# print(state_choices)
 		state_evidence = dict(zip(state_decision_names, map(int, state_choices)))
-		# print(state_evidence)
 
 		best_score = None
 		best_choice = None
 
 		for j in range(0, 1 << len(actions)):
 			action_choices = num2bits(j, len(actions))
-			# print(action_choices)
 			action_evidence = dict(zip(action_decision_names, map(int, action_choices)))
-			# print(action_evidence)
 
 			evidence = state_evidence.copy()
 			evidence.update(action_evidence)
-
-			# print(evidence)
-			# print()
 
 			score = evaluate(formula, evidence, utilities)
 			stats['eval'] += 1
@@ -148,6 +125,7 @@ def search_exhaustive(formula, actions, states, utilities):
 
 		s = "s{}".format(i)
 		value[s] = best_score
+		s = ', '.join(["{0}={1}".format(k,state_evidence[k]) for k in sorted(state_evidence.keys(), key=Term.__repr__)])
 		policy[s] = { k:v for (k,v) in best_choice.items() if k in action_decision_names }
 
 	return value, policy, stats
