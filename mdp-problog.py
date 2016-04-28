@@ -10,10 +10,13 @@ import time
 def usage(progname):
 	print("Usage: {} /path/to/input.pl".format(progname))
 
-def read_input(filename):
-	with open(filename, 'r') as f:
-		model = PrologString(f.read())
-		return model
+def read_input(domain, instance):
+	model = ""
+	with open(domain, 'r') as f:
+		model += f.read()
+	with open(instance, 'r') as f:
+		model += f.read()
+	return PrologString(model)
 
 def init(model):
 	# prepare grounding engine
@@ -213,14 +216,13 @@ def get_decision_facts(gp, state_functors):
 	return action_decision_facts, state_decision_facts
 
 if __name__ == '__main__':
-	import sys
+	import argparse
+	parser = argparse.ArgumentParser()
+	parser.add_argument("domain", help="path to MDP domain file")
+	parser.add_argument("instance", help="path to MDP instance file")
+	args = parser.parse_args()
 
-	if len(sys.argv) < 2:
-		usage(sys.argv[0])
-		exit(1)
-
-	filename = sys.argv[1]
-	model = read_input(filename)
+	model = read_input(args.domain, args.instance)
 	gp, action_facts, state_facts, utilities = init(model)
 
 	gamma = 0.9
