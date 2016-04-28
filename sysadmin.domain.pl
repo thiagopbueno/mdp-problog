@@ -13,7 +13,10 @@ total_running(C,R) :- connected(C,L), % L é a lista de computadores conectados 
                       alive(L,R).     % R é o total de computadores em L em funcionamento
 
 % Predicados de estado
-state(running(C)) :- computer(C). 
+state(running(C)) :- computer(C).
+
+% Predicados de ação
+action(reboot(C)) :- computer(C).
 
 % Regras de transição
 1.00::running(C,1) :- reboot(C).

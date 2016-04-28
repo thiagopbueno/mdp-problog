@@ -6,9 +6,7 @@ from problog.logic   import Constant,Term,And,Clause
 from problog         import get_evaluatable
 
 import time
-
-def usage(progname):
-	print("Usage: {} /path/to/input.pl".format(progname))
+import math
 
 def read_input(domain, instance):
 	model = ""
@@ -26,6 +24,14 @@ def init(model):
 	# find state variables and build state atoms
 	state_functors, current_state_atoms, next_state_atoms = build_state_atoms(eng, db)
 
+	# find action atoms
+	action_atoms = build_action_atoms(eng, db)
+	action_decision_facts, action_rules = build_action_rules(action_atoms)
+	for f in action_decision_facts:
+		db.add_fact(f)
+	for r in action_rules:
+		db.add_clause(r)
+
 	# add state decision facts
 	for t in current_state_atoms:
 		state_decision_fact = t.with_probability(Term('?'))
@@ -33,12 +39,8 @@ def init(model):
 
 	# build state rules and initial values
 	state_rules, state_values = build_next_state_rules(next_state_atoms)
-
-	# print(">> Next state rules:")
 	for r in state_rules:
 		db.add_clause(r)
-
-	# print(">> Next state future values:")
 	for u in state_values:
 		db.add_fact(u)
 
@@ -51,7 +53,7 @@ def init(model):
 	# get decision facts for action and state variables
 	action_facts, state_facts = get_decision_facts(gp, state_functors)
 
-	return gp, action_facts, state_facts, utilities
+	return gp, action_atoms, action_facts, state_facts, utilities
 
 def value_iteration(epsilon, gamma, gp, action_facts, state_facts, utilities):
 
@@ -164,6 +166,43 @@ def build_state_atoms(eng, db):
 		next_state_atoms.append(t.with_args(*args))
 	return state_functors, current_state_atoms, next_state_atoms
 
+def build_action_atoms(eng, db):
+	action_atoms = [p[0] for p in eng.query(db, Term('action', None))]
+	return action_atoms
+
+def build_action_rules(action_atoms):
+	facts = []
+	rules = []
+
+	n = math.ceil(math.log2(len(action_atoms)))
+	for i in range(1, n+1):
+		facts.append(Term('a{}'.format(i), p=Term('?')))
+
+	# initialize valuation
+	valuation = [0]*n
+
+	# build state rules
+	for i in range(len(action_atoms)):
+		body_atoms = []
+		for pos in range(n):
+			if valuation[pos] == 1:
+				body_atoms.append(facts[pos])
+			else:
+				body_atoms.append(~facts[pos])
+
+		body = And.from_list(body_atoms)
+		head = action_atoms[i]
+		rules.append(head << body)
+
+		# update valuation
+		for pos in range(n):
+			if valuation[pos] == 1:
+				valuation[pos] = 0
+			else:
+				valuation[pos] = 1
+				break
+
+	return facts, rules
 
 def build_next_state_rules(next_state_atoms):
 	state_rules = []
@@ -223,7 +262,7 @@ if __name__ == '__main__':
 	args = parser.parse_args()
 
 	model = read_input(args.domain, args.instance)
-	gp, action_facts, state_facts, utilities = init(model)
+	gp, action_atoms, action_facts, state_facts, utilities = init(model)
 
 	gamma = 0.9
 	epsilon = 0.1
@@ -235,5 +274,17 @@ if __name__ == '__main__':
 
 	print(">> Policy:")
 	for s in sorted(policy.keys()):
-		print("pi({0}) = {1}".format(s, policy[s]))
+		strategy = policy[s]
+		decision_facts = sorted(strategy.keys(), key=Term.__repr__)
+		index = 0
+		b = 1
+		for a in decision_facts:
+			index += b*strategy[a]
+			b *= 2
+		action = ""
+		if index >= len(action_atoms):
+			action = None
+		else:
+			action = action_atoms[index]
+		print("Pi({0}) = {1}".format(s,action))
 	print()
