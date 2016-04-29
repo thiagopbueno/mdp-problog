@@ -17,6 +17,7 @@ state(running(C)) :- computer(C).
 
 % Predicados de ação
 action(reboot(C)) :- computer(C).
+action(reboot(none)).
 
 % Regras de transição
 1.00::running(C,1) :- reboot(C).
