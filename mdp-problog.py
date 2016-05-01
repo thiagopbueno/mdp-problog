@@ -58,31 +58,38 @@ def init(model):
 def value_iteration(epsilon, gamma, gp, action_facts, state_facts, utilities):
 	knowledge = get_evaluatable(None).create_from(gp)
 
-	i = 0
 	start = time.clock()
 	value_function, policy, utilities, stats = update(knowledge, gamma, action_facts, state_facts, utilities)
 	end = time.clock()
-	print("<< executed in {time:.3f} sec.\n".format(time=end-start))
+	states = [int(k[1:]) for k in value_function.keys()]
+	output = ["Iteration", "Error", "Time"]
+	output += ["V(s{0})".format(s) for s in sorted(states)]
+	print(','.join(output))
 
+	iteration = 0
 	while True:
 		start = time.clock()
 		new_value_function, policy, utilities, stats = update(knowledge, gamma, action_facts, state_facts, utilities)
 		error = [ abs(new_value_function[s] - value_function[s]) for s in value_function.keys() ]
+		end = time.clock()
 
+		output = [str(iteration)]
+		output.append("{0:.5f}".format(max(error)))
+		output.append("{time:.3f}".format(time=end-start))
 		states = [int(k[1:]) for k in new_value_function.keys()]
+		values = []
 		for s in sorted(states):
 			k = "s{}".format(s)
-			print("V(s{0})\t= {1:<12.6f}".format(s, new_value_function[k]))
-		print("@ error = {0:.5f}".format(max(error)))
-
-		end = time.clock()
-		print("<< executed in {time:.3f} sec.\n".format(time=end-start))
+			val = new_value_function[k]
+			values.append("{0:3.4f}".format(val))
+		output += values
+		print(','.join(output))
 
 		if max(error) <= epsilon*(1-gamma)/(gamma):
 			break
 
 		value_function = new_value_function.copy()
-		i += 1
+		iteration += 1
 
 	value_function, policy, utilities, stats = update(knowledge, gamma, action_facts, state_facts, utilities)
 	return value_function, policy, iteration
