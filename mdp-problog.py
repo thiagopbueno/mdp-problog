@@ -56,23 +56,17 @@ def init(model):
 	return gp, action_atoms, action_facts, state_facts, utilities
 
 def value_iteration(epsilon, gamma, gp, action_facts, state_facts, utilities):
+	knowledge = get_evaluatable(None).create_from(gp)
 
 	i = 0
 	start = time.clock()
-	print(">> iteration #{0} ...".format(i))
-	value_function, policy, utilities, stats = update(gp, gamma, action_facts, state_facts, utilities)
-	states = [int(k[1:]) for k in value_function.keys()]
-	for s in sorted(states):
-		k = "s{}".format(s)
-		print("V(s{0})\t= {1:<12.6f}".format(s, value_function[k]))
+	value_function, policy, utilities, stats = update(knowledge, gamma, action_facts, state_facts, utilities)
 	end = time.clock()
 	print("<< executed in {time:.3f} sec.\n".format(time=end-start))
 
 	while True:
 		start = time.clock()
-		print(">> iteration #{0} ...".format(i))
-
-		new_value_function, policy, utilities, stats = update(gp, gamma, action_facts, state_facts, utilities)
+		new_value_function, policy, utilities, stats = update(knowledge, gamma, action_facts, state_facts, utilities)
 		error = [ abs(new_value_function[s] - value_function[s]) for s in value_function.keys() ]
 
 		states = [int(k[1:]) for k in new_value_function.keys()]
@@ -90,11 +84,10 @@ def value_iteration(epsilon, gamma, gp, action_facts, state_facts, utilities):
 		value_function = new_value_function.copy()
 		i += 1
 
-	value_function, policy, utilities, stats = update(gp, gamma, action_facts, state_facts, utilities)
-	return value_function, policy, i
+	value_function, policy, utilities, stats = update(knowledge, gamma, action_facts, state_facts, utilities)
+	return value_function, policy, iteration
 
-def update(gp, gamma, action_facts, state_facts, utilities):
-	knowledge = get_evaluatable(None).create_from(gp)
+def update(knowledge, gamma, action_facts, state_facts, utilities):
 	value, policy, stats = search_exhaustive(knowledge, action_facts, state_facts, utilities)
 	for u,v in utilities.items():
 		if u.__repr__() in value.keys():
