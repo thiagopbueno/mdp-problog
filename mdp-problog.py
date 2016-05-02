@@ -8,251 +8,213 @@ from problog         import get_evaluatable
 import time
 import math
 
-def read_input(domain, instance):
-	model = ""
-	with open(domain, 'r') as f:
-		model += f.read()
-	with open(instance, 'r') as f:
-		model += f.read()
-	return PrologString(model)
+class MDPProbLog():
+	_eng = DefaultEngine(label_all=True)
 
-def init(model):
-	# prepare grounding engine
-	eng = DefaultEngine(label_all=True)
-	db = eng.prepare(model)
+	def __init__(self, model, gamma, epsilon):
+		self._model = model
+		self._gamma = gamma
+		self._epsilon = epsilon
+		self._db = self._eng.prepare(PrologString(model))
+		self._build_state_atoms()
+		self._get_action_atoms()
+		self._build_action_rules()
+		self._build_next_state_rules()
+		self._utilities = dict(self._eng.query(self._db, Term('utility', None, None)))
+		self._gp = self._eng.ground_all(self._db, target=None, queries=self._utilities.keys())
+		self._knowledge = get_evaluatable(None).create_from(self._gp)
+		self._get_decision_facts()
 
-	# find state variables and build state atoms
-	state_functors, current_state_atoms, next_state_atoms = build_state_atoms(eng, db)
+	@property
+	def model(self):
+		return self._model
 
-	# find action atoms
-	action_atoms = build_action_atoms(eng, db)
-	action_decision_facts, action_rules = build_action_rules(action_atoms)
-	for f in action_decision_facts:
-		db.add_fact(f)
-	for r in action_rules:
-		db.add_clause(r)
+	@property
+	def actions(self):
+		return self._action_atoms
 
-	# add state decision facts
-	for t in current_state_atoms:
-		state_decision_fact = t.with_probability(Term('?'))
-		db.add_fact(state_decision_fact)
+	def _build_state_atoms(self):
+		self._state_functors = set()
+		self._next_state_atoms = []
+		self._current_state_atoms = []
+		state_vars = [p[0] for p in self._eng.query(self._db, Term('state', None))]
+		for t in state_vars:
+			self._state_functors.add(t.functor)
 
-	# build state rules and initial values
-	state_rules, state_values = build_next_state_rules(next_state_atoms)
-	for r in state_rules:
-		db.add_clause(r)
-	for u in state_values:
-		db.add_fact(u)
+			args = t.args + (Constant(1),)
+			self._next_state_atoms.append(t.with_args(*args))
 
-	# get utility attributes
-	utilities = dict(eng.query(db, Term('utility', None, None)))
+			args = t.args + (Constant(0),)
+			curr_state_atom = t.with_args(*args)
+			self._current_state_atoms.append(curr_state_atom)
+			self._db.add_fact(curr_state_atom.with_probability(Term('?')))
 
-	# perform relevant grounding w.r.t. utility nodes
-	gp = eng.ground_all(db, target=None, queries=utilities.keys())
+	def _get_action_atoms(self):
+		self._action_atoms = [p[0] for p in self._eng.query(self._db, Term('action', None))]
 
-	# get decision facts for action and state variables
-	action_facts, state_facts = get_decision_facts(gp, state_functors)
+	def _build_action_rules(self):
+		self._action_decision_facts = []
+		self._action_rules = []
 
-	return gp, action_atoms, action_facts, state_facts, utilities
+		n = math.ceil(math.log2(len(self._action_atoms)))
+		for i in range(1, n+1):
+			f = Term('a{}'.format(i), p=Term('?'))
+			self._action_decision_facts.append(f)
+			self._db.add_fact(f)
 
-def value_iteration(epsilon, gamma, gp, action_facts, state_facts, utilities):
-	knowledge = get_evaluatable(None).create_from(gp)
+		valuation = [0]*n
+		for i in range(len(self._action_atoms)):
+			body_atoms = []
+			for pos in range(n):
+				if valuation[pos] == 1:
+					body_atoms.append(self._action_decision_facts[pos])
+				else:
+					body_atoms.append(~self._action_decision_facts[pos])
 
-	start = time.clock()
-	value_function, policy, utilities, stats = update(knowledge, gamma, action_facts, state_facts, utilities)
-	end = time.clock()
-	states = [int(k[1:]) for k in value_function.keys()]
-	output = ["Iteration", "Error", "Time"]
-	output += ["V(s{0})".format(s) for s in sorted(states)]
-	print(','.join(output))
+			body = And.from_list(body_atoms)
+			head = self._action_atoms[i]
+			r = head << body
+			self._action_rules.append(r)
+			self._db.add_clause(r)
 
-	iteration = 0
-	while True:
-		start = time.clock()
-		new_value_function, policy, utilities, stats = update(knowledge, gamma, action_facts, state_facts, utilities)
-		error = [ abs(new_value_function[s] - value_function[s]) for s in value_function.keys() ]
-		end = time.clock()
+			MDPProbLog.next_valuation(valuation)
 
-		output = [str(iteration)]
-		output.append("{0:.5f}".format(max(error)))
-		output.append("{time:.3f}".format(time=end-start))
-		states = [int(k[1:]) for k in new_value_function.keys()]
-		values = []
-		for s in sorted(states):
-			k = "s{}".format(s)
-			val = new_value_function[k]
-			values.append("{0:3.4f}".format(val))
-		output += values
+	def _get_decision_facts(self):
+		self._action_decision_facts = []
+		self._state_decision_facts = []
+		for i, n, t in self._gp:
+			if t == 'atom' and n.probability == Term('?'):
+				functor = n.name.functor
+				if functor in self._state_functors:
+					self._state_decision_facts.append(n.name)
+				else:
+					self._action_decision_facts.append(n.name)
+		self._state_decision_facts = sorted(self._state_decision_facts, key=Term.__repr__)
+
+	def _build_next_state_rules(self):
+		n = len(self._next_state_atoms)
+		valuation = [0]*n
+		for i in range(2**n):
+			body_atoms = []
+			for pos in range(n):
+				if valuation[pos] == 1:
+					body_atoms.append(self._next_state_atoms[pos])
+				else:
+					body_atoms.append(~self._next_state_atoms[pos])
+			body = And.from_list(body_atoms)
+			head = Term('s{}'.format(i))
+			rule = head << body
+			self._db.add_clause(rule)
+
+			value = Term('utility', head.with_probability(None), Constant(0.0))
+			self._db.add_fact(value)
+
+			MDPProbLog.next_valuation(valuation)
+
+	def value_iteration(self):
+		value_function, policy = self.update()
+		states = [int(k[1:]) for k in value_function.keys()]
+		output = ["Iteration", "Error", "Time"]
+		output += ["V(s{0})".format(s) for s in sorted(states)]
 		print(','.join(output))
 
-		if max(error) <= epsilon*(1-gamma)/(gamma):
-			break
+		iteration = 0
+		while True:
+			start = time.clock()
+			new_value_function, policy = self.update()
+			error = [ abs(new_value_function[s] - value_function[s]) for s in value_function.keys() ]
+			value_function = new_value_function.copy()
+			if max(error) <= epsilon*(1-gamma)/(gamma):
+				break
+			end = time.clock()
 
-		value_function = new_value_function.copy()
-		iteration += 1
+			output = [str(iteration)]
+			output.append("{0:.5f}".format(max(error)))
+			output.append("{time:.3f}".format(time=end-start))
+			states = [int(k[1:]) for k in value_function.keys()]
+			values = []
+			for s in sorted(states):
+				k = "s{}".format(s)
+				val = value_function[k]
+				values.append("{0:3.4f}".format(val))
+			output += values
+			print(','.join(output))
 
-	value_function, policy, utilities, stats = update(knowledge, gamma, action_facts, state_facts, utilities)
-	return value_function, policy, iteration
+			iteration += 1
 
-def update(knowledge, gamma, action_facts, state_facts, utilities):
-	value, policy, stats = search_exhaustive(knowledge, action_facts, state_facts, utilities)
-	for u,v in utilities.items():
-		if u.__repr__() in value.keys():
-			utilities[u] = gamma * value[u.__repr__()]
-	return value, policy, utilities, stats
+		for state, strategy in policy.items():
+			decision_facts = sorted(strategy.keys(), key=Term.__repr__)
+			index = 0
+			b = 1
+			for a in decision_facts:
+				index += b*strategy[a]
+				b *= 2
+			action = self._action_atoms[index]
 
-def search_exhaustive(formula, actions, states, utilities):
-	stats = {'eval': 0}
+			policy[state] = action
 
-	state_decision_ids, state_decision_names = zip(*states)
-	action_decision_ids, action_decision_names = zip(*actions)
+		return value_function, policy, iteration
 
-	state_decision_names = tuple(sorted(state_decision_names, key=Term.__repr__, reverse=True))
+	def update(self):
+		value, policy = self._search_exhaustive()
+		for u,v in self._utilities.items():
+			if u.__repr__() in value.keys():
+				self._utilities[u] = self._gamma * value[u.__repr__()]
+		return value, policy
 
-	value = {}
-	policy = {}
+	def _search_exhaustive(self):
+		value = {}
+		policy = {}
 
-	for i in range(0, 1 << len(states)):
-		state_choices = num2bits(i, len(states))
-		state_evidence = dict(zip(state_decision_names, map(int, state_choices)))
+		n_actions = len(self._action_atoms)
+		n_action_facts = math.ceil(math.log2(len(self._action_atoms)))
+		n_states = 2**len(self._state_decision_facts)
 
-		best_score = None
-		best_choice = None
+		state_valuation = [0]*n_states
+		for i in range(n_states):
+			state_evidence = dict(zip(self._state_decision_facts, state_valuation))
 
-		for j in range(0, 1 << len(actions)):
-			action_choices = num2bits(j, len(actions))
-			action_evidence = dict(zip(action_decision_names, map(int, action_choices)))
+			best_score = None
+			best_choice = None
 
-			evidence = state_evidence.copy()
-			evidence.update(action_evidence)
+			action_valuation = [0]*n_action_facts
+			for j in range(n_actions):
+				action_evidence = dict(zip(self._action_decision_facts, action_valuation))
 
-			score = evaluate(formula, evidence, utilities)
-			stats['eval'] += 1
-			if best_score is None or score > best_score:
-				best_score = score
-				best_choice = dict(evidence)
+				evidence = state_evidence.copy()
+				evidence.update(action_evidence)
 
-		s = "s{}".format(i)
-		value[s] = best_score
-		s = ', '.join(["{0}={1}".format(k,state_evidence[k]) for k in sorted(state_evidence.keys(), key=Term.__repr__)])
-		policy[s] = { k:v for (k,v) in best_choice.items() if k in action_decision_names }
+				score = self._evaluate(evidence)
+				if best_score is None or score > best_score:
+					best_score = score
+					best_choice = dict(evidence)
 
-	return value, policy, stats
+				MDPProbLog.next_valuation(action_valuation)
 
-def evaluate(formula, decisions, utilities):
-	result = formula.evaluate(weights=decisions)
-	score = 0.0
-	for r in result:
-		score += result[r] * float(utilities[r])
-	return score
+			s = "s{}".format(i)
+			value[s] = best_score
+			s = ', '.join(["{0}={1}".format(k,state_evidence[k]) for k in sorted(state_evidence.keys(), key=Term.__repr__)])
+			policy[s] = { k:v for (k,v) in best_choice.items() if k in self._action_decision_facts }
 
-def num2bits(n, nbits):
-	bits = [False] * nbits
-	for i in range(1, nbits + 1):
-		bits[nbits - i] = bool(n % 2)
-		n >>= 1
-	return bits
+			MDPProbLog.next_valuation(state_valuation)
 
-def build_state_atoms(eng, db):
-	state_vars = [p[0] for p in eng.query(db, Term('state', None))]
-	state_functors = set()
-	current_state_atoms = []
-	next_state_atoms = []
-	for t in state_vars:
-		state_functors.add(t.functor)
-		args = t.args + (Constant(0),)
-		current_state_atoms.append(t.with_args(*args))
-		args = t.args + (Constant(1),)
-		next_state_atoms.append(t.with_args(*args))
-	return state_functors, current_state_atoms, next_state_atoms
+		return value, policy
 
-def build_action_atoms(eng, db):
-	action_atoms = [p[0] for p in eng.query(db, Term('action', None))]
-	return action_atoms
+	def _evaluate(self, evidence):
+		result = self._knowledge.evaluate(weights=evidence)
+		score = 0.0
+		for r in result:
+			score += result[r] * float(self._utilities[r])
+		return score
 
-def build_action_rules(action_atoms):
-	facts = []
-	rules = []
-
-	n = math.ceil(math.log2(len(action_atoms)))
-	for i in range(1, n+1):
-		facts.append(Term('a{}'.format(i), p=Term('?')))
-
-	# initialize valuation
-	valuation = [0]*n
-
-	# build state rules
-	for i in range(len(action_atoms)):
-		body_atoms = []
-		for pos in range(n):
-			if valuation[pos] == 1:
-				body_atoms.append(facts[pos])
-			else:
-				body_atoms.append(~facts[pos])
-
-		body = And.from_list(body_atoms)
-		head = action_atoms[i]
-		rules.append(head << body)
-
-		# update valuation
-		for pos in range(n):
+	@staticmethod
+	def next_valuation(valuation):
+		for pos in range(len(valuation)):
 			if valuation[pos] == 1:
 				valuation[pos] = 0
 			else:
 				valuation[pos] = 1
 				break
-
-	return facts, rules
-
-def build_next_state_rules(next_state_atoms):
-	state_rules = []
-	value_utilities = []
-
-	# initialize valuation
-	n = len(next_state_atoms)
-	valuation = [0]*n
-
-	# build state rules
-	for i in range(2**n):
-		body_atoms = []
-		for pos in range(n):
-			if valuation[pos] == 1:
-				body_atoms.append(next_state_atoms[pos])
-			else:
-				body_atoms.append(~next_state_atoms[pos])
-
-		# build new rule
-		body = And.from_list(body_atoms)
-		head = Term('s{}'.format(i))
-		rule = head << body
-
-		value = Term('utility', head.with_probability(None), Constant(0.0))
-		value_utilities.append(value)
-
-		# store new rule
-		state_rules.append(rule)
-
-		# update valuation
-		for pos in range(n):
-			if valuation[pos] == 1:
-				valuation[pos] = 0
-			else:
-				valuation[pos] = 1
-				break
-
-	return state_rules, value_utilities
-
-def get_decision_facts(gp, state_functors):
-	action_decision_facts = []
-	state_decision_facts = []
-	for i, n, t in gp:
-		if t == 'atom' and n.probability == Term('?'):
-			functor = n.name.functor
-			if functor in state_functors:
-				state_decision_facts.append((i,n.name))
-			else:
-				action_decision_facts.append((i, n.name))
-	return action_decision_facts, state_decision_facts
 
 if __name__ == '__main__':
 	import argparse
@@ -261,30 +223,23 @@ if __name__ == '__main__':
 	parser.add_argument("instance", help="path to MDP instance file")
 	args = parser.parse_args()
 
-	model = read_input(args.domain, args.instance)
-	gp, action_atoms, action_facts, state_facts, utilities = init(model)
+	model = ""
+	with open(args.domain, 'r') as domain:
+		model += domain.read()
+	with open(args.instance, 'r') as instance:
+		model += instance.read()
 
 	gamma = 0.9
 	epsilon = 0.1
 
+	program = MDPProbLog(model, gamma, epsilon)
+
 	start = time.clock()
-	value_function, policy, iterations = value_iteration(epsilon, gamma, gp, action_facts, state_facts, utilities)
+	value_function, policy, iterations = program.value_iteration()
 	end = time.clock()
 	print("@ Value iteration converged in {time:.3f}sec after {it} iterations.\n".format(time=end-start, it=iterations))
 
 	print(">> Policy:")
 	for s in sorted(policy.keys()):
-		strategy = policy[s]
-		decision_facts = sorted(strategy.keys(), key=Term.__repr__)
-		index = 0
-		b = 1
-		for a in decision_facts:
-			index += b*strategy[a]
-			b *= 2
-		action = ""
-		if index >= len(action_atoms):
-			action = None
-		else:
-			action = action_atoms[index]
-		print("Pi({0}) = {1}".format(s,action))
+		print("Pi({0}) = {1}".format(s, policy[s]))
 	print()
