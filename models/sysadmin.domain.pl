@@ -13,7 +13,7 @@ total_running(C,R) :- connected(C,L), % L é a lista de computadores conectados 
                       alive(L,R).     % R é o total de computadores em L em funcionamento
 
 % Predicados de estado
-state(running(C)) :- computer(C).
+state_fluent(running(C)) :- computer(C).
 
 % Predicados de ação
 action(reboot(C)) :- computer(C).
@@ -27,4 +27,4 @@ P::running(C,1)    :- not(reboot(C)), running(C,0),
 
 % Atributos de utilidade
 utility(reboot(C), -0.75)   :- computer(C).   % custos
-utility(running(C,1), 1.00) :- computer(C).   % recompensas
+utility(running(C,0), 1.00) :- computer(C).   % recompensas

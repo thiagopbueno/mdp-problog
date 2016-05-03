@@ -34,10 +34,10 @@ class MDPProbLog():
 		return self._action_atoms
 
 	def _build_state_atoms(self):
+		state_vars = [p[0] for p in self._eng.query(self._db, Term('state_fluent', None))]
 		self._state_functors = set()
 		self._next_state_atoms = []
 		self._current_state_atoms = []
-		state_vars = [p[0] for p in self._eng.query(self._db, Term('state', None))]
 		for t in state_vars:
 			self._state_functors.add(t.functor)
 
