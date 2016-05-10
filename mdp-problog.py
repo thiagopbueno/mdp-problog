@@ -114,9 +114,6 @@ class MDPProbLog():
 	def value_iteration(self, verbose):
 		value_function, policy = self.update()
 
-		if verbose == 1:
-			print(">> Running value iteration ...")
-
 		if verbose == 2:
 			states = [int(k[1:]) for k in value_function.keys()]
 			output = ["Iteration", "Error", "Time"]
@@ -240,14 +237,38 @@ if __name__ == '__main__':
 
 	model = ""
 	with open(args.domain, 'r') as domain:
+		if args.verbose == 1:
+			print(">> Reading file {}...".format(args.domain))
+		start = time.clock()
 		model += domain.read()
+		end = time.clock()
+		if args.verbose == 1:
+			print(">> Done in {0:.5f}sec.".format(end-start))
+			print()
 	with open(args.instance, 'r') as instance:
+		if args.verbose == 1:
+			print(">> Reading file {}...".format(args.instance))
+		start = time.clock()
 		model += instance.read()
+		end = time.clock()
+		if args.verbose == 1:
+			print(">> Done in {0:.5f}sec.".format(end-start))
+			print()
 
+	if args.verbose == 1:
+		print(">> Building MDPProbLog program ...")
 	gamma = args.gamma
 	epsilon = args.eps
+	start = time.clock()
 	program = MDPProbLog(model, gamma, epsilon)
+	end = time.clock()
+	if args.verbose == 1:
+		print(">> Done in {0:.5f}sec.".format(end-start))
+		print()
 
+	if args.verbose == 1:
+		print(">> Running value iteration ...")
+		print()
 	start = time.clock()
 	value_function, policy, iterations = program.value_iteration(args.verbose)
 	end = time.clock()
