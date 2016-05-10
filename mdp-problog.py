@@ -124,7 +124,7 @@ class MDPProbLog():
 			new_value_function, policy = self.update()
 			error = [ abs(new_value_function[s] - value_function[s]) for s in value_function.keys() ]
 			value_function = new_value_function.copy()
-			if max(error) <= epsilon*(1-gamma)/(gamma):
+			if max(error) <= 2*epsilon*(1-gamma)/(gamma):
 				break
 			end = time.clock()
 
@@ -221,6 +221,8 @@ if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
 	parser.add_argument("domain", help="path to MDP domain file")
 	parser.add_argument("instance", help="path to MDP instance file")
+	parser.add_argument("-g", "--gamma", type=float, default=0.9, help="discount factor")
+	parser.add_argument("-e", "--eps", type=float, default=0.1, help="relative error")
 	args = parser.parse_args()
 
 	model = ""
@@ -229,8 +231,8 @@ if __name__ == '__main__':
 	with open(args.instance, 'r') as instance:
 		model += instance.read()
 
-	gamma = 0.9
-	epsilon = 0.1
+	gamma = args.gamma
+	epsilon = args.eps
 
 	program = MDPProbLog(model, gamma, epsilon)
 
