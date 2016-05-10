@@ -133,8 +133,8 @@ class MDPProbLog():
 
 			if verbose == 1:
 				print("@ Iteration #{} ...".format(iteration))
-				print(">> Error={0:.5f}".format(max(error)))
-				print(">> Execution in {0:.3f}sec".format(uptime))
+				print(">> Done in {0:.3f}sec".format(uptime))
+				print(">> Max error={0:.5f}".format(max(error)))
 				print()
 
 			if verbose == 2:
@@ -272,10 +272,13 @@ if __name__ == '__main__':
 	start = time.clock()
 	value_function, policy, iterations = program.value_iteration(args.verbose)
 	end = time.clock()
+	uptime = end-start
 
 	print()
 	print(">> Policy:")
 	for s in sorted(policy.keys()):
 		print("Pi({0}) = {1}".format(s, policy[s]))
 	print()
-	print("@ Value iteration converged in {time:.3f}sec after {it} iterations.\n".format(time=end-start, it=iterations))
+	print("@ Value iteration converged in {time:.3f}sec after {it} iterations.".format(time=uptime, it=iterations))
+	print(">> average time per iteration = {0:.5f}".format(uptime/iterations))
+	print()
