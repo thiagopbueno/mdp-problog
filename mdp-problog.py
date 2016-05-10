@@ -111,12 +111,17 @@ class MDPProbLog():
 
 			MDPProbLog.next_valuation(valuation)
 
-	def value_iteration(self):
+	def value_iteration(self, verbose):
 		value_function, policy = self.update()
-		states = [int(k[1:]) for k in value_function.keys()]
-		output = ["Iteration", "Error", "Time"]
-		output += ["V(s{0})".format(s) for s in sorted(states)]
-		print(','.join(output))
+
+		if verbose == 1:
+			print(">> Running value iteration ...")
+
+		if verbose == 2:
+			states = [int(k[1:]) for k in value_function.keys()]
+			output = ["Iteration", "Error", "Time"]
+			output += ["V(s{0})".format(s) for s in sorted(states)]
+			print(','.join(output))
 
 		iteration = 0
 		while True:
@@ -127,18 +132,25 @@ class MDPProbLog():
 			if max(error) <= 2*epsilon*(1-gamma)/(gamma):
 				break
 			end = time.clock()
+			uptime = end-start
 
-			output = [str(iteration)]
-			output.append("{0:.5f}".format(max(error)))
-			output.append("{time:.3f}".format(time=end-start))
-			states = [int(k[1:]) for k in value_function.keys()]
-			values = []
-			for s in sorted(states):
-				k = "s{}".format(s)
-				val = value_function[k]
-				values.append("{0:3.4f}".format(val))
-			output += values
-			print(','.join(output))
+			if verbose == 1:
+				print("@ Iteration #{} ...".format(iteration))
+				print(">> Error={0:.5f}".format(max(error)))
+				print(">> Execution in {0:.3f}sec".format(uptime))
+				print()
+
+			if verbose == 2:
+				output = [str(iteration)]
+				output.append("{0:.5f}".format(max(error)))
+				output.append("{time:.3f}".format(time=uptime))
+				values = []
+				for s in sorted(states):
+					k = "s{}".format(s)
+					val = value_function[k]
+					values.append("{0:3.4f}".format(val))
+				output += values
+				print(','.join(output))
 
 			iteration += 1
 
@@ -221,8 +233,9 @@ if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
 	parser.add_argument("domain", help="path to MDP domain file")
 	parser.add_argument("instance", help="path to MDP instance file")
-	parser.add_argument("-g", "--gamma", type=float, default=0.9, help="discount factor")
-	parser.add_argument("-e", "--eps", type=float, default=0.1, help="relative error")
+	parser.add_argument("-g", "--gamma", type=float, default=0.9, help="discount factor (default=0.9)")
+	parser.add_argument("-e", "--eps", type=float, default=0.1, help="relative error (default=0.1")
+	parser.add_argument("-v", "--verbose", type=int, default=0, help="verbose mode")
 	args = parser.parse_args()
 
 	model = ""
@@ -233,15 +246,15 @@ if __name__ == '__main__':
 
 	gamma = args.gamma
 	epsilon = args.eps
-
 	program = MDPProbLog(model, gamma, epsilon)
 
 	start = time.clock()
-	value_function, policy, iterations = program.value_iteration()
+	value_function, policy, iterations = program.value_iteration(args.verbose)
 	end = time.clock()
-	print("@ Value iteration converged in {time:.3f}sec after {it} iterations.\n".format(time=end-start, it=iterations))
 
+	print()
 	print(">> Policy:")
 	for s in sorted(policy.keys()):
 		print("Pi({0}) = {1}".format(s, policy[s]))
 	print()
+	print("@ Value iteration converged in {time:.3f}sec after {it} iterations.\n".format(time=end-start, it=iterations))
