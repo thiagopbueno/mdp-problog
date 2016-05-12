@@ -153,16 +153,8 @@ class MDPProbLog():
 
 			iteration += 1
 
-		for state, strategy in policy.items():
-			decision_facts = sorted(strategy.keys(), key=Term.__repr__)
-			index = 0
-			b = 1
-			for a in decision_facts:
-				index += b*strategy[a]
-				b *= 2
-			action = self._action_atoms[index]
-
-			policy[state] = action
+		value_function, policy = self.update(True)
+		value_function, policy = self._translate_function_repr(value_function, policy)
 
 		return value_function, policy, iteration, max_error
 
@@ -217,6 +209,34 @@ class MDPProbLog():
 		for r in result:
 			score += result[r] * float(self._utilities[r])
 		return score
+
+	def _translate_function_repr(self, value_function, policy):
+		# actions in policy function
+		for state, strategy in policy.items():
+			decision_facts = sorted(strategy.keys(), key=Term.__repr__)
+			index = 0
+			b = 1
+			for a in decision_facts:
+				index += b*strategy[a]
+				b *= 2
+			action = self._action_atoms[index]
+			policy[state] = action
+
+		# states in value function
+		state_labels = {}
+		n_states = 2**len(self._state_decision_facts)
+		state_valuation = [0]*n_states
+		for i in range(n_states):
+			state_evidence = dict(zip(self._state_decision_facts, state_valuation))
+			lbl = "__s{}__".format(i)
+			st_repr = ', '.join(["{0}={1}".format(k,state_evidence[k]) for k in sorted(state_evidence.keys(), key=Term.__repr__)])
+			state_labels[lbl] = st_repr
+			MDPProbLog.next_valuation(state_valuation)
+		new_value_function = {}
+		for state, value in value_function.items():
+			new_value_function[state_labels[state]] = value
+
+		return new_value_function, policy
 
 	@staticmethod
 	def next_valuation(valuation):
@@ -284,8 +304,8 @@ if __name__ == '__main__':
 	print()
 
 	print(">> Value:")
-	for i in range(len(states)):
-		print("V({0}) = {1:.4f}".format(states[i], value_function["__s{}__".format(i)]))
+	for s in states:
+		print("V({0}) = {1:.4f}".format(s, value_function[s]))
 	print()
 
 	print(">> Value iteration converged in {time:.3f}sec after {it} iterations.".format(time=uptime, it=iterations))
