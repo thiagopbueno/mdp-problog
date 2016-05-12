@@ -121,12 +121,14 @@ class MDPProbLog():
 			print(','.join(output))
 
 		iteration = 0
+		max_error = None
 		while True:
 			start = time.clock()
 			new_value_function, policy = self.update()
 			error = [ abs(new_value_function[s] - value_function[s]) for s in value_function.keys() ]
+			max_error = max(error)
 			value_function = new_value_function.copy()
-			if max(error) <= 2*epsilon*(1-gamma)/(gamma):
+			if max_error <= 2*epsilon*(1-gamma)/(gamma):
 				break
 			end = time.clock()
 			uptime = end-start
@@ -134,12 +136,12 @@ class MDPProbLog():
 			if verbose == 1:
 				print("@ Iteration #{} ...".format(iteration))
 				print(">> Done in {0:.3f}sec".format(uptime))
-				print(">> Max error={0:.5f}".format(max(error)))
+				print(">> Max error={0:.5f}".format(max_error))
 				print()
 
 			if verbose == 2:
 				output = [str(iteration)]
-				output.append("{0:.5f}".format(max(error)))
+				output.append("{0:.5f}".format(max_error))
 				output.append("{time:.3f}".format(time=uptime))
 				values = []
 				for s in sorted(states):
@@ -162,7 +164,7 @@ class MDPProbLog():
 
 			policy[state] = action
 
-		return value_function, policy, iteration
+		return value_function, policy, iteration, max_error
 
 	def update(self):
 		value, policy = self._search_exhaustive()
@@ -270,7 +272,7 @@ if __name__ == '__main__':
 		print(">> Running value iteration ...")
 		print()
 	start = time.clock()
-	value_function, policy, iterations = program.value_iteration(args.verbose)
+	value_function, policy, iterations, error = program.value_iteration(args.verbose)
 	end = time.clock()
 	uptime = end-start
 
@@ -286,6 +288,7 @@ if __name__ == '__main__':
 		print("V({0}) = {1:.4f}".format(states[i], value_function["__s{}__".format(i)]))
 	print()
 
-	print("@ Value iteration converged in {time:.3f}sec after {it} iterations.".format(time=uptime, it=iterations))
-	print(">> average time per iteration = {0:.5f}".format(uptime/iterations))
+	print(">> Value iteration converged in {time:.3f}sec after {it} iterations.".format(time=uptime, it=iterations))
+	print("@ Average time per iteration = {0:.3f}sec.".format(uptime/iterations))
+	print("@ Max error = {0:.5f}".format(error))
 	print()
