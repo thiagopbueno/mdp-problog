@@ -158,14 +158,14 @@ class MDPProbLog():
 
 		return value_function, policy, iteration, max_error
 
-	def update(self):
-		value, policy = self._search_exhaustive()
+	def update(self, actions=False):
+		value, policy = self._search_exhaustive(actions)
 		for u,v in self._utilities.items():
 			if u.__repr__() in value.keys():
 				self._utilities[u] = self._gamma * value[u.__repr__()]
 		return value, policy
 
-	def _search_exhaustive(self):
+	def _search_exhaustive(self, actions):
 		value = {}
 		policy = {}
 
@@ -196,8 +196,10 @@ class MDPProbLog():
 
 			s = "__s{}__".format(i)
 			value[s] = best_score
-			s = ', '.join(["{0}={1}".format(k,state_evidence[k]) for k in sorted(state_evidence.keys(), key=Term.__repr__)])
-			policy[s] = { k:v for (k,v) in best_choice.items() if k in self._action_decision_facts }
+
+			if True:
+				s = ', '.join(["{0}={1}".format(k,state_evidence[k]) for k in sorted(state_evidence.keys(), key=Term.__repr__)])
+				policy[s] = { k:v for (k,v) in best_choice.items() if k in self._action_decision_facts }
 
 			MDPProbLog.next_valuation(state_valuation)
 
