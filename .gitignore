@@ -1,3 +1,5 @@
 *.pyc
 *~
 tests/*.txt
+tests/*.gp
+tests/*.pdf
