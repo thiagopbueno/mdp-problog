@@ -274,11 +274,18 @@ if __name__ == '__main__':
 	end = time.clock()
 	uptime = end-start
 
+	states = sorted(policy.keys())
 	print()
 	print(">> Policy:")
-	for s in sorted(policy.keys()):
+	for s in states:
 		print("Pi({0}) = {1}".format(s, policy[s]))
 	print()
+
+	print(">> Value:")
+	for i in range(len(states)):
+		print("V({0}) = {1:.4f}".format(states[i], value_function["__s{}__".format(i)]))
+	print()
+
 	print("@ Value iteration converged in {time:.3f}sec after {it} iterations.".format(time=uptime, it=iterations))
 	print(">> average time per iteration = {0:.5f}".format(uptime/iterations))
 	print()
