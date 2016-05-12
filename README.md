@@ -14,9 +14,9 @@ optional arguments:
   -h, --help            show this help message and exit
   -g GAMMA, --gamma GAMMA
                         discount factor (default=0.9)
-  -e EPS, --eps EPS     relative error (default=0.1
+  -e EPS, --eps EPS     relative error  (default=0.1)
   -v VERBOSE, --verbose VERBOSE
-                        verbose mode
+                        verbose mode (default=0)
 ```
 
 ## Example

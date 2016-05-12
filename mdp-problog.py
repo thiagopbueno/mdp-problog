@@ -254,9 +254,9 @@ if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
 	parser.add_argument("domain", help="path to MDP domain file")
 	parser.add_argument("instance", help="path to MDP instance file")
-	parser.add_argument("-g", "--gamma", type=float, default=0.9, help="discount factor (default=0.9)")
-	parser.add_argument("-e", "--eps", type=float, default=0.1, help="relative error (default=0.1")
-	parser.add_argument("-v", "--verbose", type=int, default=0, help="verbose mode")
+	parser.add_argument("-g", "--gamma",   type=float, default=0.9, help="discount factor (default=0.9)")
+	parser.add_argument("-e", "--eps",     type=float, default=0.1, help="relative error  (default=0.1)")
+	parser.add_argument("-v", "--verbose", type=int,   default=0,   help="verbose mode    (default=0)")
 	args = parser.parse_args()
 
 	model = ""
