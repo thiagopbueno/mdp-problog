@@ -102,7 +102,7 @@ class MDPProbLog():
 				else:
 					body_atoms.append(~self._next_state_atoms[pos])
 			body = And.from_list(body_atoms)
-			head = Term('s{}'.format(i))
+			head = Term('__s{}__'.format(i))
 			rule = head << body
 			self._db.add_clause(rule)
 
@@ -115,7 +115,7 @@ class MDPProbLog():
 		value_function, policy = self.update()
 
 		if verbose == 2:
-			states = [int(k[1:]) for k in value_function.keys()]
+			states = [int(k[3:-2]) for k in value_function.keys()]
 			output = ["Iteration", "Error", "Time"]
 			output += ["V(s{0})".format(s) for s in sorted(states)]
 			print(','.join(output))
@@ -143,7 +143,7 @@ class MDPProbLog():
 				output.append("{time:.3f}".format(time=uptime))
 				values = []
 				for s in sorted(states):
-					k = "s{}".format(s)
+					k = "__s{}__".format(s)
 					val = value_function[k]
 					values.append("{0:3.4f}".format(val))
 				output += values
@@ -200,7 +200,7 @@ class MDPProbLog():
 
 				MDPProbLog.next_valuation(action_valuation)
 
-			s = "s{}".format(i)
+			s = "__s{}__".format(i)
 			value[s] = best_score
 			s = ', '.join(["{0}={1}".format(k,state_evidence[k]) for k in sorted(state_evidence.keys(), key=Term.__repr__)])
 			policy[s] = { k:v for (k,v) in best_choice.items() if k in self._action_decision_facts }
