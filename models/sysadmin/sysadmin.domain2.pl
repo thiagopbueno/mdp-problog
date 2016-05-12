@@ -26,5 +26,10 @@ P::running(C,1)    :- not(reboot(C)), running(C,0),
                       total_connected(C,T), total_running(C,R), P is 0.45+0.50*R/T.
 
 % Atributos de utilidade
-utility(reboot(C), -0.75)   :- computer(C).   % custos
-utility(running(C,0), 1.00) :- computer(C).   % recompensas
+
+% custos
+utility(reboot(C), -0.75) :- computer(C).
+
+% recompensas
+utility(running(C,1),  1.00) :- computer(C), C \== c2.
+utility(running(c2,1), 0.50).
