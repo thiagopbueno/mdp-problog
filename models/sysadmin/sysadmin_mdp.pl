@@ -1,3 +1,13 @@
+%////////////////////////////////////////////////////////////////////
+%// SysAdmin Boolean MDP
+%//
+%// An example RDDL description for the well-known SysAdmin problem
+%// (Guestrin, Koller, Parr, IJCAI-01).
+%//
+%// Author: Scott Sanner (ssanner [at] gmail.com)
+%////////////////////////////////////////////////////////////////////
+
+
 % Propriedades gerais da topologia da rede
 accTotal([],A,A).
 accTotal([_|T],A,X) :- B is A+1, accTotal(T,B,X).
@@ -21,7 +31,7 @@ action(reboot(none)).
 
 % Regras de transição
 1.00::running(C,1) :- reboot(C).
-0.10::running(C,1) :- not(reboot(C)), not(running(C,0)).
+0.05::running(C,1) :- not(reboot(C)), not(running(C,0)).
 P::running(C,1)    :- not(reboot(C)), running(C,0),
                       total_connected(C,T), total_running(C,R), P is 0.45+0.50*R/T.
 
