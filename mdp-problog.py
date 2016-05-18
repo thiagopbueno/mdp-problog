@@ -16,14 +16,34 @@ class MDPProbLog():
 		self._model = model
 		self._gamma = gamma
 		self._epsilon = epsilon
+
+		print("  >> Preparing program ...", end=" ")
+		start = time.clock()
 		self._db = self._eng.prepare(PrologString(model))
+		end = time.clock()
+		uptime = end-start
+		print("Done in {0:.3f}sec.".format(uptime))
+
 		self._build_state_atoms()
 		self._get_action_atoms()
 		self._build_action_rules()
 		self._build_value_function_rules()
 		self._utilities = dict(self._eng.query(self._db, Term('utility', None, None)))
+
+		print("  >> Relevant grounding ...", end=" ")
+		start = time.clock()
 		self._gp = self._eng.ground_all(self._db, target=None, queries=self._utilities.keys())
+		end = time.clock()
+		uptime = end-start
+		print("Done in {0:.3f}sec.".format(uptime))
+
+		print("  >> Compilation ...", end=" ")
+		start = time.clock()
 		self._knowledge = get_evaluatable(None).create_from(self._gp)
+		end = time.clock()
+		uptime = end-start
+		print("Done in {0:.3f}sec.".format(uptime))
+
 		self._queries = dict(self._knowledge.queries())
 		self._get_decision_facts()
 
@@ -140,7 +160,7 @@ class MDPProbLog():
 
 			if self._verbose in [1,2]:
 				print("@ Iteration #{} ...".format(iteration))
-				print(">> Done in {0:.3f}sec".format(uptime))
+				print(">> Done in {0:.3f}sec.".format(uptime))
 				print(">> Max error={0:.5f}".format(max_error))
 				print()
 
@@ -210,7 +230,7 @@ class MDPProbLog():
 
 				if self._verbose == 2:
 					end_act = time.clock()
-					print("\t@ uptime per action = {0:.3f}sec".format(end_act-start_act))
+					print("\t@ uptime per action = {0:.3f}sec.".format(end_act-start_act))
 
 			s = "__s{}__".format(i)
 			value[s] = best_score
@@ -220,7 +240,7 @@ class MDPProbLog():
 			MDPProbLog.next_valuation(state_valuation)
 			if self._verbose == 2:
 				end_st = time.clock()
-				print("@ uptime per state = {0:.3f}sec".format(end_st-start_st))
+				print("@ uptime per state = {0:.3f}sec.".format(end_st-start_st))
 				print()
 
 		return value, policy
@@ -335,36 +355,36 @@ if __name__ == '__main__':
 
 	model = ""
 	with open(args.domain, 'r') as domain:
-		if args.verbose == 1:
+		if args.verbose in [1,2]:
 			print(">> Reading file {}...".format(args.domain))
 		start = time.clock()
 		model += domain.read()
 		end = time.clock()
-		if args.verbose == 1:
+		if args.verbose in [1,2]:
 			print(">> Done in {0:.5f}sec.".format(end-start))
 			print()
 	with open(args.instance, 'r') as instance:
-		if args.verbose == 1:
+		if args.verbose in [1,2]:
 			print(">> Reading file {}...".format(args.instance))
 		start = time.clock()
 		model += instance.read()
 		end = time.clock()
-		if args.verbose == 1:
+		if args.verbose in [1,2]:
 			print(">> Done in {0:.5f}sec.".format(end-start))
 			print()
 
-	if args.verbose == 1:
+	if args.verbose in [1, 2]:
 		print(">> Building MDPProbLog program ...")
 	gamma = args.gamma
 	epsilon = args.eps
 	start = time.clock()
 	program = MDPProbLog(model, gamma, epsilon)
 	end = time.clock()
-	if args.verbose == 1:
+	if args.verbose in [1, 2]:
 		print(">> Done in {0:.5f}sec.".format(end-start))
 		print()
 
-	if args.verbose == 1:
+	if args.verbose in [1, 2]:
 		print(">> Running value iteration ...")
 		print()
 	start = time.clock()
