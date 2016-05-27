@@ -33,6 +33,8 @@ class MDPProbLog():
 		print("  >> Relevant grounding ...", end=" ")
 		start = time.clock()
 		self._gp = self._eng.ground_all(self._db, target=None, queries=self._utilities.keys())
+		# print(self._gp)
+		# exit(0)
 		end = time.clock()
 		uptime = end-start
 		print("Done in {0:.3f}sec.".format(uptime))
@@ -40,12 +42,20 @@ class MDPProbLog():
 		print("  >> Compilation ...", end=" ")
 		start = time.clock()
 		self._knowledge = get_evaluatable(None).create_from(self._gp)
+		# print(self._knowledge)
+		# exit(0)
 		end = time.clock()
 		uptime = end-start
 		print("Done in {0:.3f}sec.".format(uptime))
 
 		self._queries = dict(self._knowledge.queries())
 		self._get_decision_facts()
+		# print(self._queries)
+		print(self._action_decision_facts)
+		print(self._state_decision_facts)
+		print(self._current_state_atoms)
+		print(self._next_state_atoms)
+		# exit(0)
 
 	@property
 	def model(self):
@@ -57,6 +67,7 @@ class MDPProbLog():
 
 	def _build_state_atoms(self):
 		state_vars = [p[0] for p in self._eng.query(self._db, Term('state_fluent', None))]
+		print(state_vars)
 		self._state_functors = set()
 		self._next_state_atoms = []
 		self._current_state_atoms = []
@@ -129,6 +140,7 @@ class MDPProbLog():
 			self._value_function_atoms.append(head)
 			rule = head << body
 			self._db.add_clause(rule)
+			print(rule)
 
 			value = Term('utility', head.with_probability(None), Constant(0.0))
 			self._db.add_fact(value)
@@ -177,6 +189,8 @@ class MDPProbLog():
 				print(','.join(output))
 
 			iteration += 1
+			# if iteration == 2:
+			# 	exit(0)
 
 		value_function, policy = self.update(True)
 		value_function, policy = self._translate_function_repr(value_function, policy)
@@ -222,6 +236,8 @@ class MDPProbLog():
 				evidence.update(action_evidence)
 
 				score = self._evaluate(evidence, i, j)
+				# print(evidence)
+				# print(score)
 				if best_score is None or score > best_score:
 					best_score = score
 					best_choice = dict(evidence)
@@ -231,6 +247,9 @@ class MDPProbLog():
 				if self._verbose == 2:
 					end_act = time.clock()
 					print("\t@ uptime per action = {0:.3f}sec.".format(end_act-start_act))
+
+			# print()
+			# exit(0)
 
 			s = "__s{}__".format(i)
 			value[s] = best_score
@@ -243,68 +262,85 @@ class MDPProbLog():
 				print("@ uptime per state = {0:.3f}sec.".format(end_st-start_st))
 				print()
 
+		# print()
+
 		return value, policy
 
 	def _evaluate(self, evidence, state_id, action_id):
+		# print(evidence)
 		# queries = dict(self._knowledge.queries())
-		evaluator = self._knowledge.get_evaluator(None, None, evidence)
+		# evaluator = self._knowledge.get_evaluator(None, None, evidence)
 
-		nodes = []
-		if (state_id, action_id) in self._evaluate.reachable_nodes:
-			nodes = self._evaluate.reachable_nodes[(state_id, action_id)]
-		else:
-			# action nodes
-			for name in self._action_atoms:
-				nodes.append(self._queries[name])
+		# nodes = []
+		# if (state_id, action_id) in self._evaluate.reachable_nodes:
+		# 	nodes = self._evaluate.reachable_nodes[(state_id, action_id)]
+		# else:
+		# 	for name, node in self._queries.items():
+		# 		if not name in self._next_state_atoms:
+		# 			nodes.append(node)
 
-			# state variable nodes
-			reachable_states = set()
-			for name in self._value_function_atoms:
-				node = self._queries[name]
-				reachable_states.add(node)
+		# 	# action nodes
+		# 	# print(self._action_atoms)
+		# 	# for name in self._action_atoms:
+		# 	# 	nodes.append(self._queries[name])
 
-			# value function prunning
-			for i in range(len(self._next_state_atoms)):
-				name = self._next_state_atoms[i]
-				node = self._queries[name]
-				nodes.append(node)
-				p = evaluator.evaluate(node)
+		# 	# state variable nodes
+		# 	reachable_states = set()
+		# 	for name in self._value_function_atoms:
+		# 		node = self._queries[name]
+		# 		reachable_states.add(node)
 
-				states = set()
-				if abs(p - 1.0) <= 0.0001:
-					for j in range(2**i, len(self._value_function_atoms), 2**(i+1)):
-						for k in range(2**i):
-							n = j+k
-							states.add(self._queries[self._value_function_atoms[n]])
-					reachable_states = reachable_states & states
+		# 	# value function prunning
+		# 	# print(self._next_state_atoms)
+		# 	for i in range(len(self._next_state_atoms)):
+		# 		name = self._next_state_atoms[i]
+		# 		node = self._queries.get(name)
+		# 		if node is None:
+		# 			continue
+		# 		nodes.append(node)
+		# 		p = evaluator.evaluate(node)
 
-			# value function nodes
-			for node in reachable_states:
-				nodes.append(node)
+		# 		states = set()
+		# 		if abs(p - 1.0) <= 0.0001:
+		# 			for j in range(2**i, len(self._value_function_atoms), 2**(i+1)):
+		# 				for k in range(2**i):
+		# 					n = j+k
+		# 					states.add(self._queries[self._value_function_atoms[n]])
+		# 			reachable_states = reachable_states & states
 
-			# memoization
-			self._evaluate.reachable_nodes[(state_id, action_id)] = nodes
+		# 	# value function nodes
+		# 	for node in reachable_states:
+		# 		nodes.append(node)
 
-		result = {}
-		score = 0.0
-		for node in nodes:
-			name = self._knowledge.get_name(node)
-			result[name] = evaluator.evaluate(node)
-			score += result[name] * float(self._utilities[name])
+		# 	# memoization
+		# 	self._evaluate.reachable_nodes[(state_id, action_id)] = nodes
 
-		if self._verbose == 2:
-			print("WMC = {}".format(len(result)), end="\t:  ")
-
-		return score
-
-		# result = self._knowledge.evaluate(weights=evidence)
-		# print("WMC = {}".format(len(result)))
+		# result = {}
 		# score = 0.0
-		# for r in result:
-		# 	score += result[r] * float(self._utilities[r])
+		# # print(evidence)
+		# for node in nodes:
+		# 	name = self._knowledge.get_name(node)
+		# 	result[name] = evaluator.evaluate(node)
+
+		# 	score += result[name] * float(self._utilities[name])
+		# 	# print("name = {0}, prob = {1}, utility = {2}".format(name, result[name], float(self._utilities[name])))
+
+		# if self._verbose == 2:
+		# 	print("WMC = {}".format(len(result)), end="\t:  ")
+
+		# print(">> score = {}".format(score))
+		# print()
+
 		# return score
 
-	_evaluate.reachable_nodes = {}
+		result = self._knowledge.evaluate(weights=evidence)
+		# print("WMC = {}".format(len(result)))
+		score = 0.0
+		for r in result:
+			score += result[r] * float(self._utilities[r])
+		return score
+
+	# _evaluate.reachable_nodes = {}
 
 	def _translate_function_repr(self, value_function, policy):
 		# actions in policy function
