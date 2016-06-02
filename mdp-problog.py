@@ -17,24 +17,21 @@ class MDPProbLog():
 		self._gamma = gamma
 		self._epsilon = epsilon
 
-		print("  >> Preparing program ...", end=" ")
+		print("  >> Preprocessing program ...", end=" ")
 		start = time.clock()
 		self._db = self._eng.prepare(PrologString(model))
-		end = time.clock()
-		uptime = end-start
-		print("Done in {0:.3f}sec.".format(uptime))
-
 		self._build_state_atoms()
 		self._get_action_atoms()
 		self._build_action_rules()
 		self._build_value_function_rules()
 		self._utilities = dict(self._eng.query(self._db, Term('utility', None, None)))
+		end = time.clock()
+		uptime = end-start
+		print("Done in {0:.3f}sec.".format(uptime))
 
 		print("  >> Relevant grounding ...", end=" ")
 		start = time.clock()
 		self._gp = self._eng.ground_all(self._db, target=None, queries=self._utilities.keys())
-		# print(self._gp)
-		# exit(0)
 		end = time.clock()
 		uptime = end-start
 		print("Done in {0:.3f}sec.".format(uptime))
@@ -42,20 +39,12 @@ class MDPProbLog():
 		print("  >> Compilation ...", end=" ")
 		start = time.clock()
 		self._knowledge = get_evaluatable(None).create_from(self._gp)
-		# print(self._knowledge)
-		# exit(0)
 		end = time.clock()
 		uptime = end-start
 		print("Done in {0:.3f}sec.".format(uptime))
 
 		self._queries = dict(self._knowledge.queries())
 		self._get_decision_facts()
-		# print(self._queries)
-		print(self._action_decision_facts)
-		print(self._state_decision_facts)
-		print(self._current_state_atoms)
-		print(self._next_state_atoms)
-		# exit(0)
 
 	@property
 	def model(self):
@@ -67,7 +56,6 @@ class MDPProbLog():
 
 	def _build_state_atoms(self):
 		state_vars = [p[0] for p in self._eng.query(self._db, Term('state_fluent', None))]
-		print(state_vars)
 		self._state_functors = set()
 		self._next_state_atoms = []
 		self._current_state_atoms = []
@@ -140,7 +128,6 @@ class MDPProbLog():
 			self._value_function_atoms.append(head)
 			rule = head << body
 			self._db.add_clause(rule)
-			print(rule)
 
 			value = Term('utility', head.with_probability(None), Constant(0.0))
 			self._db.add_fact(value)
@@ -189,8 +176,6 @@ class MDPProbLog():
 				print(','.join(output))
 
 			iteration += 1
-			# if iteration == 2:
-			# 	exit(0)
 
 		value_function, policy = self.update(True)
 		value_function, policy = self._translate_function_repr(value_function, policy)
@@ -236,8 +221,6 @@ class MDPProbLog():
 				evidence.update(action_evidence)
 
 				score = self._evaluate(evidence, i, j)
-				# print(evidence)
-				# print(score)
 				if best_score is None or score > best_score:
 					best_score = score
 					best_choice = dict(evidence)
@@ -247,9 +230,6 @@ class MDPProbLog():
 				if self._verbose == 2:
 					end_act = time.clock()
 					print("\t@ uptime per action = {0:.3f}sec.".format(end_act-start_act))
-
-			# print()
-			# exit(0)
 
 			s = "__s{}__".format(i)
 			value[s] = best_score
@@ -261,8 +241,6 @@ class MDPProbLog():
 				end_st = time.clock()
 				print("@ uptime per state = {0:.3f}sec.".format(end_st-start_st))
 				print()
-
-		# print()
 
 		return value, policy
 
