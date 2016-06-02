@@ -1,4 +1,16 @@
-# mdp-problog
+# MDP-ProbLog
+
+MDP-ProbLog is a framework to represent and solve (infinite-horizon) MDPs by probabilistic logic programming.
+
+
+## Install
+
+It is required to have Python3 installed.
+
+```
+$ pip3 install problog
+$ git clone https://github.com/thiagopbueno/mdp-problog.git
+```
 
 ## Usage
 
@@ -44,7 +56,7 @@ V(running(c1,0)=1, running(c2,0)=0, running(c3,0)=1) = 23.7351
 V(running(c1,0)=1, running(c2,0)=1, running(c3,0)=0) = 23.7351
 V(running(c1,0)=1, running(c2,0)=1, running(c3,0)=1) = 25.3572
 
->> Value iteration converged in 4.963sec after 44 iterations.
-@ Average time per iteration = 0.113sec.
+>> Value iteration converged in 0.299sec after 44 iterations.
+@ Average time per iteration = 0.007sec.
 @ Max error = 0.02166
 ```
