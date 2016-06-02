@@ -1,6 +1,4 @@
 .DS_Store
 *.pyc
 *~
-tests/*.txt
 tests/*.gp
-tests/*.pdf

@@ -144,7 +144,7 @@ class MDPProbLog():
 			output += ["V(s{0})".format(s) for s in sorted(states)]
 			print(','.join(output))
 
-		iteration = 0
+		iteration = 1
 		max_error = None
 		while True:
 			start = time.clock()
