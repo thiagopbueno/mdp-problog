@@ -78,7 +78,7 @@ utility(running(C,1),  1.00) :- computer(C).
 ## Example
 
 ```
-$ ./mdp-problog.py models/sysadmin/domain.pl models/sysadmin/hub2.pl --eps 0.1 --gamma 0.
+$ ./mdp-problog.py models/sysadmin/domain.pl models/sysadmin/star2.pl --eps 0.1 --gamma 0.9
 
   >> Preprocessing program ... Done in 0.025sec.
   >> Relevant grounding ... Done in 0.050sec.
