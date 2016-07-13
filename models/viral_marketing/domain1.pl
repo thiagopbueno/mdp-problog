@@ -14,7 +14,7 @@ marketed(X,1) :- market(X).
 0.5::marketed(X,1) :- not(market(X)), marketed(X,0).
 
 % reward model
-0.2::buy_from_marketing.
-0.3::buy_from_trust.
-buys(X,1) :- marketed(X,1), buy_from_marketing.
-buys(X,1) :- trusts(X,Y), buys(Y,1), buy_from_trust.
+0.2::buy_from_marketing(P) :- person(P).
+0.3::buy_from_trust(P) :- person(P).
+buys(X,1) :- marketed(X,1), buy_from_marketing(X).
+buys(X,1) :- trusts(X,Y), buys(Y,1), buy_from_trust(X).

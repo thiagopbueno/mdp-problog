@@ -19,10 +19,10 @@ marketed(P,1) :- market(L), member(P,L).
 0.5::marketed(P,1) :- market(L), not(member(P,L)), marketed(P,0).
 
 % reward model
-0.2::buy_from_marketing.
-0.3::buy_from_trust.
+0.2::buy_from_marketing(P) :- people(L), member(P,L).
+0.3::buy_from_trust(P) :- people(L), member(P,L).
 
-buys(P,1) :- marketed(P,1), buy_from_marketing.
-buys(P,1) :- trusts(P,P2), buys(P2,1), buy_from_trust.
+buys(P,1) :- marketed(P,1), buy_from_marketing(P).
+buys(P,1) :- trusts(P,P2), buys(P2,1), buy_from_trust(P).
 
 utility(buys(P,1), 5) :- people(L), member(P,L).

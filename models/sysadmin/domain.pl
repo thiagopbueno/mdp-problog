@@ -1,14 +1,5 @@
-%////////////////////////////////////////////////////////////////////
-%// SysAdmin Boolean MDP
-%//
-%// An example RDDL description for the well-known SysAdmin problem
-%// (Guestrin, Koller, Parr, IJCAI-01).
-%//
-%// Author: Scott Sanner (ssanner [at] gmail.com)
-%////////////////////////////////////////////////////////////////////
 
-
-% Propriedades gerais da topologia da rede
+% Network topology properties
 accTotal([],A,A).
 accTotal([_|T],A,X) :- B is A+1, accTotal(T,B,X).
 total(L,T) :- accTotal(L,0,T).
@@ -22,24 +13,24 @@ alive(L,A) :- accAlive(L,0,A).
 total_running(C,R) :- connected(C,L), % L é a lista de computadores conectados com C
                       alive(L,R).     % R é o total de computadores em L em funcionamento
 
-% Predicados de estado
+% State fluents
 state_fluent(running(C)) :- computer(C).
 
-% Predicados de ação
+% Actions
 action(reboot(C)) :- computer(C).
 action(reboot(none)).
 
-% Regras de transição
+% Transition model
 1.00::running(C,1) :- reboot(C).
 0.05::running(C,1) :- not(reboot(C)), not(running(C,0)).
 P::running(C,1)    :- not(reboot(C)), running(C,0),
                       total_connected(C,T), total_running(C,R), P is 0.45+0.50*R/T.
 
-% Atributos de utilidade
+% Utility attributes
 
-% custos
+% costs
 utility(reboot(C), -0.75) :- computer(C).
 utility(reboot(none), 0.00).
 
-% recompensas
+% rewards
 utility(running(C,1),  1.00) :- computer(C).
