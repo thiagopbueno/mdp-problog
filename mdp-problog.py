@@ -32,8 +32,8 @@ class MDPProbLog():
 		print("  >> Relevant grounding ...", end=" ")
 		start = time.clock()
 		self._gp = self._eng.ground_all(self._db, target=None, queries=self._utilities.keys())
+		self._get_action_effects()
 		end = time.clock()
-		uptime = end-start
 		print("Done in {0:.3f}sec.".format(uptime))
 
 		print("  >> Compilation ...", end=" ")
@@ -45,6 +45,31 @@ class MDPProbLog():
 
 		self._queries = dict(self._knowledge.queries())
 		self._get_decision_facts()
+
+	def _get_action_effects(self):
+		nodes = {}
+		for i,node,t in self._gp:
+			nodes[node.name] = i
+
+		self._action_effects = {}
+		for name in self._action_atoms:
+			self._action_effects[name] = set()
+
+		for name in self._next_state_atoms:
+			# root = self._gp.get_node_by_name(name)
+			root = nodes[name]
+			stack = [root]
+			visited = set()
+			while stack:
+				i = stack.pop()
+				visited.add(i)
+				node = self._gp.get_node(abs(i))
+				if node.name in self._action_effects:
+					self._action_effects[node.name].add(name)
+				elif hasattr(node, 'children'):
+					for child in node.children:
+						if child not in visited:
+							stack.append(child)
 
 	@property
 	def model(self):
