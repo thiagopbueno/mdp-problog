@@ -238,14 +238,17 @@ class MDPProbLog():
 			for j in range(n_actions):
 				if self._verbose == 2:
 					start_act = time.clock()
-					print("\taction #{0}".format(j), end="\t:\t")
 
 				action_evidence = dict(zip(self._action_decision_facts, action_valuation))
+				action = self._translate_action_repr(action_evidence)
+
+				if self._verbose == 2:
+					print("  action #{0} = {1}".format(j, action))
 
 				evidence = state_evidence.copy()
 				evidence.update(action_evidence)
 
-				score = self._evaluate(evidence, i, j)
+				(score, action_score, effects_score, value_function_score, others_score) = self._evaluate(evidence, i, j, action)
 				if best_score is None or score > best_score:
 					best_score = score
 					best_choice = dict(evidence)
@@ -254,7 +257,8 @@ class MDPProbLog():
 
 				if self._verbose == 2:
 					end_act = time.clock()
-					print("\t@ uptime per action = {0:.3f}sec.".format(end_act-start_act))
+					print("  uptime = {0:.3f}sec.".format(end_act-start_act))
+					print("    score = (cost = {0:.3f}, effects = {1:.3f}, V = {2:.3f}, others = {3:.3f}, total = {4:.3f})".format(action_score, effects_score, value_function_score, others_score, score))
 
 			s = "__s{}__".format(i)
 			value[s] = best_score
@@ -269,7 +273,7 @@ class MDPProbLog():
 
 		return value, policy
 
-	def _evaluate(self, evidence, state_id, action_id):
+	def _evaluate(self, evidence, state_id, action_id, action):
 		if (state_id,action_id) in self._evaluate.results:
 			probs = self._evaluate.results[(state_id,action_id)]
 		else:
@@ -302,33 +306,42 @@ class MDPProbLog():
 							queries.pop(self._value_function_atoms[n], None)
 
 			for name,node in queries.items():
-				probs[name] = evaluator.evaluate(node)
+				p = evaluator.evaluate(node)
+				if abs(p-0.0) > 0.00001:
+					probs[name] = p
 
 			# memoization
 			self._evaluate.results[(state_id,action_id)] = probs
 
 		score = 0.0
-		for name,prob in probs.items():
-			score += prob * float(self._utilities[name])
+		action_score = 0.0
+		effects_score = 0.0
+		value_function_score = 0.0
+		others_score = 0.0
+		for name in sorted(probs.keys(), key=Term.__repr__):
+			prob = probs[name]
+			val = prob * float(self._utilities[name])
+			score += val
+			if name in self._value_function_atoms:
+				value_function_score += val
+			elif name in self._action_effects[action]:
+				effects_score += val
+			elif name in self._action_atoms:
+				action_score += val
+			else:
+				others_score += val
 
 		if self._verbose == 2:
-			print("WMC = {}".format(len(probs)), end="\t:  ")
+			print("    WMC = {}".format(len(probs)), end="  :")
 
-		return score
+		return (score, action_score, effects_score, value_function_score, others_score)
 
 	_evaluate.results = {}
 
 	def _translate_function_repr(self, value_function, policy):
 		# actions in policy function
 		for state, strategy in policy.items():
-			decision_facts = sorted(strategy.keys(), key=Term.__repr__)
-			index = 0
-			b = 1
-			for a in decision_facts:
-				index += b*strategy[a]
-				b *= 2
-			action = self._action_atoms[index]
-			policy[state] = action
+			policy[state] = self._translate_action_repr(strategy)
 
 		# states in value function
 		state_labels = {}
@@ -345,6 +358,15 @@ class MDPProbLog():
 			new_value_function[state_labels[state]] = value
 
 		return new_value_function, policy
+
+	def _translate_action_repr(self, strategy):
+		decision_facts = sorted(strategy.keys(), key=Term.__repr__)
+		index = 0
+		b = 1
+		for a in decision_facts:
+			index += b*strategy[a]
+			b *= 2
+		return self._action_atoms[index]
 
 	@staticmethod
 	def next_valuation(valuation):
