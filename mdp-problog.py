@@ -290,7 +290,8 @@ class MDPProbLog():
 
 				# compute success probability
 				p = evaluator.evaluate(node)
-				probs[name] = p
+				if abs(p-0.0) > 0.0001:
+					probs[name] = p
 				queries.pop(name)
 
 				# prunning
