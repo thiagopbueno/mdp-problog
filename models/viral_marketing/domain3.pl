@@ -25,4 +25,5 @@ marketed(P,1) :- market(L), member(P,L).
 buys(P,1) :- marketed(P,1), buy_from_marketing(P).
 buys(P,1) :- trusts(P,P2), buys(P2,1), buy_from_trust(P).
 
+utility(marketed(P,1), 0.0) :- market(L), member(P,L).
 utility(buys(P,1), 5) :- people(L), member(P,L).

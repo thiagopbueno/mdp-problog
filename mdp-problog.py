@@ -56,7 +56,6 @@ class MDPProbLog():
 			self._action_effects[name] = set()
 
 		for name in self._next_state_atoms:
-			# root = self._gp.get_node_by_name(name)
 			root = nodes[name]
 			stack = [root]
 			visited = set()

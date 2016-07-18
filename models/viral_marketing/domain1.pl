@@ -7,7 +7,9 @@ action(market(none)).
 
 % utility
 utility(market(P), -1) :- person(P).
+utility(market(none), 0.0).
 utility(buys(P,1), 5) :- person(P).
+utility(marketed(P,1), 0.0) :- person(P).
 
 % transition model
 marketed(X,1) :- market(X).
