@@ -1,3 +1,9 @@
+subset([], []).
+subset([X|A], [X|B]):- subset(A, B).
+subset([_|A], B):- subset(A, B).
+
+member(X,[X|_]).
+member(X,[_|A]) :- member(X,A).
 
 % network topology properties
 accTotal([],A,A).
@@ -19,20 +25,20 @@ total_running(C,R) :-
 state_fluent(running(C)) :- computer(C).
 
 % actions
-action(reboot(C)) :- computer(C).
-action(reboot(none)).
+max_nondef_actions(1).
+action(reboot(X)) :- network(L), subset(L,X),  % L = list of networked computers
+                     length(X,S), max_nondef_actions(M), S =< M.
 
 % transition model
-1.00::running(C,1) :- reboot(C).
-0.05::running(C,1) :- not(reboot(C)), not(running(C,0)).
-P::running(C,1)    :- not(reboot(C)), running(C,0),
+1.00::running(C,1) :- reboot(L), member(C,L).
+0.05::running(C,1) :- reboot(L), not(member(C,L)), not(running(C,0)).
+P::running(C,1)    :- reboot(L), not(member(C,L)), running(C,0),
                       total_connected(C,T), total_running(C,R), P is 0.45+0.50*R/T.
 
 % utility attributes
 
 % costs
-utility(reboot(C), -0.75) :- computer(C).
-utility(reboot(none), 0.00).
+utility(reboot(X), -0.75*T) :- network(L), subset(L,X), length(X,T).
 
 % rewards
 utility(running(C,1),  1.00) :- computer(C).

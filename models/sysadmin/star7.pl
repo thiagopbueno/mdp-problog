@@ -1,4 +1,5 @@
-% Objetos
+% objects
+network([c1,c2,c3,c4,c5,c6,c7,c8]).
 computer(c1).
 computer(c2).
 computer(c3).
@@ -8,7 +9,7 @@ computer(c6).
 computer(c7).
 computer(c8).
 
-% Topologia da rede
+% topology
 connected(c1,[c2,c3,c4,c5,c6,c7,c8]).
 connected(c2,[c1]).
 connected(c3,[c1]).
