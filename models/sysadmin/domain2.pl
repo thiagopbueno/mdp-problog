@@ -25,7 +25,7 @@ total_running(C,R) :-
 state_fluent(running(C)) :- computer(C).
 
 % actions
-max_nondef_actions(1).
+max_nondef_actions(3).
 action(reboot(X)) :- network(L), subset(L,X),  % L = list of networked computers
                      length(X,S), max_nondef_actions(M), S =< M.
 
