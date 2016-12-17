@@ -29,12 +29,15 @@ class Engine(object):
 		self._engine = DefaultEngine()
 		self._db = self._engine.prepare(PrologString(program))
 
-	def declarations(self, type):
+	def declarations(self, declaration_type):
 		"""
-		Return a list of all terms of declared `type`.
+		Return a list of all terms of type `declaration_type`.
 
-		:param type: declaration type.
-		:type type: str
+		:param declaration_type: declaration type.
+		:type declaration_type: str
 		:rtype: list of problog.logic.Term
 		"""
-		return [t[0] for t in self._engine.query(self._db, Term(type, None))]
+		return [t[0] for t in self._engine.query(self._db, Term(declaration_type, None))]
+
+	def assignments(self, assignment_type):
+		return dict(self._engine.query(self._db, Term(assignment_type, None, None)))

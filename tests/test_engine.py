@@ -33,6 +33,9 @@ class TestEngine(unittest.TestCase):
 				state_fluent(running(C)) :- computer(C).
 				action(reboot(C)) :- computer(C).
 				action(reboot(none)).
+				utility(running(C,1),  1.00) :- computer(C).
+				utility(reboot(C), -0.75) :- computer(C).
+				utility(reboot(none), 0.00).
 				""",
 			'viral_marketing':
 				"""
@@ -41,7 +44,15 @@ class TestEngine(unittest.TestCase):
 				state_fluent(buys(P)) :- person(P).
 				action(market(P)) :- person(P).
 				action(market(none)).
+				utility(buys(P,1), 5) :- person(P).
+				utility(market(P), -1) :- person(P).
 				"""
+		}
+
+	def setUp(self):
+		self.engines = {
+			'sysadmin': eng.Engine(self.models['sysadmin']),
+			'viral_marketing': eng.Engine(self.models['viral_marketing'])
 		}
 
 	def test_declarations(self):
@@ -57,12 +68,39 @@ class TestEngine(unittest.TestCase):
 		}
 
 		for domain, types in declarations.items():
-			engine = eng.Engine(self.models[domain])
+			engine = self.engines[domain]
 			for declaration_type in types:
 				terms = engine.declarations(declaration_type)
-				terms = sorted([str(t) for t in terms])
-				self.assertEqual(terms, types[declaration_type])
+				actual_declarations = sorted([str(t) for t in terms])
+				expected_declarations = types[declaration_type]
+				self.assertEqual(actual_declarations, expected_declarations)
 
+	def test_assignments(self):
+		assignments = {
+			'sysadmin': {
+				'utility': {
+					'running(c1,1)': 1.00, 'running(c2,1)': 1.00, 'running(c3,1)': 1.00,
+					'reboot(c1)': -0.75, 'reboot(c2)': -0.75, 'reboot(c3)': -0.75,
+					'reboot(none)': 0.00
+				}
+			},
+			'viral_marketing': {
+				'utility': {
+					'buys(ann,1)': 5, 'buys(bob,1)': 5,
+					'market(ann)': -1, 'market(bob)': -1
+				}
+			}
+		}
+
+		for domain, types in assignments.items():
+			engine = self.engines[domain]
+			for assignment_type in types:
+				expected_assignments = types[assignment_type]
+				actual_assignments = engine.assignments(assignment_type)
+				self.assertEqual(len(actual_assignments), len(expected_assignments))
+				for term, value in actual_assignments.items():
+					self.assertTrue(str(term) in expected_assignments)
+					self.assertEqual(value, expected_assignments[str(term)])
 
 if __name__ == '__main__':
 	unittest.main(verbosity=2)
