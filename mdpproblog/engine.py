@@ -87,7 +87,37 @@ class Engine(object):
 		:type node: int
 		:rtype: problog.engine.fact
 		"""
-		n = self._db.get_node(node)
-		if not str(n).startswith('fact'):
-			raise IndexError('Node %d is not a fact.' % node)
-		return n
+		fact = self._db.get_node(node)
+		if not str(fact).startswith('fact'):
+			raise IndexError('Node `%d` is not a fact.' % node)
+		return fact
+
+	def add_rule(self, head, body):
+		"""
+		Add a new rule defined by a `head` and `body` arguments
+		to the program database. Return the corresponding node number.
+
+		:param head: a predicate
+		:type head: problog.logic.Term
+		:param body: a list of literals
+		:type body: list of problog.logic.Term or problog.logic.Not
+		:rtype: int
+		"""
+		b = body[0]
+		for term in body[1:]:
+			b = b & term
+		rule = head << b
+		return self._db.add_clause(rule)
+
+	def get_rule(self, node):
+		"""
+		Return the rule in the table of instructions corresponding to `node`.
+
+		:param node: identifier of rule in table of instructions
+		:type node: int
+		:rtype: problog.engine.clause
+		"""
+		rule = self._db.get_node(node)
+		if not str(rule).startswith('clause'):
+			raise IndexError('Node `%d` is not a rule.' % node)
+		return rule

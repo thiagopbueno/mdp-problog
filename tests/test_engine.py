@@ -22,6 +22,8 @@ sys.path.insert(0, os.path.abspath('..'))
 import unittest
 import random
 
+from problog.logic import Term, Constant
+
 import mdpproblog.engine as eng
 from mdpproblog.fluent import Fluent
 
@@ -129,6 +131,47 @@ class TestEngine(unittest.TestCase):
 				for node,instruction in instructions[instruction_type]:
 					with self.assertRaises(IndexError):
 						engine.get_fact(node)
+
+	def test_add_rule(self):
+		engine = self.engines['sysadmin']
+
+		running = Term('running')
+		c1 = Constant('c1')
+		c2 = Constant('c2')
+		c3 = Constant('c3')
+		r1 = Fluent.create_fluent(running(c1), 1)
+		r2 = Fluent.create_fluent(running(c2), 1)
+		r3 = Fluent.create_fluent(running(c3), 1)
+
+		head = Term('__s0__')
+		body = ~r1 & ~r2 & ~r3
+		rule = head << body
+		node = engine.add_rule(head, [~r1, ~r2, ~r3])
+		self.assertTrue(engine.get_rule(node), rule)
+
+		head = Term('__s3__')
+		body = r1 & r2 & ~r3
+		node = engine.add_rule(head, [r1, r2, ~r3])
+		rule = engine.get_rule(node)
+		self.assertTrue(rule, head << body)
+
+		head = Term('__s7__')
+		body = r1 & r2 & r3
+		rule = head << body
+		node = engine.add_rule(head, [r1, r2, r3])
+		self.assertTrue(engine.get_rule(node), rule)
+
+	def test_get_rule(self):
+		engine = self.engines['sysadmin']
+		instructions = engine.get_instructions_table()
+		rules = instructions['clause']
+		for node,rule in rules:
+			self.assertTrue(engine.get_rule(node), rule)
+		for instruction_type in instructions:
+			if instruction_type != 'clause':
+				for node,instruction in instructions[instruction_type]:
+					with self.assertRaises(IndexError):
+						engine.get_rule(node)
 
 
 if __name__ == '__main__':
