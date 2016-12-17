@@ -40,4 +40,11 @@ class Engine(object):
 		return [t[0] for t in self._engine.query(self._db, Term(declaration_type, None))]
 
 	def assignments(self, assignment_type):
+		"""
+		Return a dictionary of assignments of type `assignment_type`.
+
+		:param assignment_type: assignment type.
+		:type assignment_type: str
+		:rtype dict of (problog.logic.Term, problog.logic.Constant) items.
+		"""
 		return dict(self._engine.query(self._db, Term(assignment_type, None, None)))
