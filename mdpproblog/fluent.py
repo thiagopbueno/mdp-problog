@@ -32,6 +32,6 @@ class Fluent(object):
 		:param timestep: timestep numeric value
 		:type timestep: int
 		:rtype: problog.logic.Term
-		""""
+		"""
 		args = term.args + (Constant(timestep),)
 		return term.with_args(*args)

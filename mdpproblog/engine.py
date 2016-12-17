@@ -15,7 +15,7 @@
 
 from problog.program import PrologString
 from problog.engine  import DefaultEngine
-from problog.logic   import Term
+from problog.logic   import Term, Constant
 
 class Engine(object):
 	"""
@@ -45,6 +45,49 @@ class Engine(object):
 
 		:param assignment_type: assignment type.
 		:type assignment_type: str
-		:rtype dict of (problog.logic.Term, problog.logic.Constant) items.
+		:rtype: dict of (problog.logic.Term, problog.logic.Constant) items.
 		"""
 		return dict(self._engine.query(self._db, Term(assignment_type, None, None)))
+
+	def get_instructions_table(self):
+		"""
+		Return the table of instructions separated by instruction type
+		as described in problog.engine.ClauseDB.
+
+		:rtype: dict of (str, list of (node,namedtuple))
+		"""
+		instructions = {}
+		for node, instruction in enumerate(self._db._ClauseDB__nodes):
+			instruction_type = str(instruction)
+			instruction_type = instruction_type[:instruction_type.find('(')]
+			if not instruction_type in instructions:
+				instructions[instruction_type] = []
+			assert(self._db.get_node(node) == instruction) # sanity check
+			instructions[instruction_type].append((node,instruction))
+		return instructions
+
+	def add_fact(self, term, probability=None):
+		"""
+		Add a new `term` with a given `probability` to the program database.
+		Return the corresponding node number.
+
+		:param term: a predicate
+		:type term: problog.logic.Term
+		:param probability: a number in [0,1]
+		:type probability: float
+		:rtype: int
+		"""
+		return self._db.add_fact(term.with_probability(Constant(probability)))
+
+	def get_fact(self, node):
+		"""
+		Return the fact in the table of instructions corresponding to `node`.
+
+		:param node: identifier of fact in table of instructions
+		:type node: int
+		:rtype: problog.engine.fact
+		"""
+		n = self._db.get_node(node)
+		if not str(n).startswith('fact'):
+			raise IndexError('Node %d is not a fact.' % node)
+		return n

@@ -20,7 +20,10 @@ import sys
 sys.path.insert(0, os.path.abspath('..'))
 
 import unittest
+import random
+
 import mdpproblog.engine as eng
+from mdpproblog.fluent import Fluent
 
 class TestEngine(unittest.TestCase):
 
@@ -101,6 +104,32 @@ class TestEngine(unittest.TestCase):
 				for term, value in actual_assignments.items():
 					self.assertTrue(str(term) in expected_assignments)
 					self.assertEqual(value, expected_assignments[str(term)])
+
+	def test_add_fact(self):
+		engine = self.engines['sysadmin']
+		terms = engine.declarations('state_fluent')
+		terms = [Fluent.create_fluent(term, 0) for term in terms]
+		for term in terms:
+			term = Fluent.create_fluent(term, 0)
+			p = random.choice([random.random(), None])
+			n = engine.add_fact(term, p)
+			fact = engine.get_fact(n)
+			self.assertEqual(fact.functor, term.functor)
+			self.assertEqual(fact.args, term.args)
+			self.assertEqual(fact.probability, p)
+
+	def test_get_fact(self):
+		engine = self.engines['sysadmin']
+		instructions = engine.get_instructions_table()
+		facts = instructions['fact']
+		for node,fact in facts:
+			self.assertTrue(engine.get_fact(node), fact)
+		for instruction_type in instructions:
+			if instruction_type != 'fact':
+				for node,instruction in instructions[instruction_type]:
+					with self.assertRaises(IndexError):
+						engine.get_fact(node)
+
 
 if __name__ == '__main__':
 	unittest.main(verbosity=2)

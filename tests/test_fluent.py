@@ -39,3 +39,6 @@ class TestFluent(unittest.TestCase):
 				self.assertEqual(fluent.arity, term.arity+1)
 				self.assertEqual(fluent.args[:-1], term.args)
 				self.assertEqual(fluent.args[-1], Constant(timestep))
+
+if __name__ == '__main__':
+	unittest.main(verbosity=2)
