@@ -136,3 +136,16 @@ class Engine(object):
 		args = (term.with_probability(None), Constant(1.0*value))
 		utility = Term('utility', *args)
 		return self._db.add_fact(utility)
+
+	def get_assignment(self, node):
+		"""
+		Return the assignment in the table of instructions corresponding to `node`.
+
+		:param node: identifier of assignment in table of instructions
+		:type node: int
+		:rtype: pair of (problog.logic.Term, problog.logic.Constant)
+		"""
+		fact = self._db.get_node(node)
+		if not (str(fact).startswith('fact') and fact.functor == 'utility'):
+			raise IndexError('Node `%d` is not an assignment.' % node)
+		return (fact.args[0], fact.args[1])

@@ -112,11 +112,26 @@ class TestEngine(unittest.TestCase):
 		fluents = engine.declarations('state_fluent')
 		for i in range(2**len(fluents)):
 			state = Term('__s%d__' % i)
-			value = (-1)**(i % 2) * 10*i
+			value = (-1)**(i % 2) * 10.0*i
 			node = engine.add_assignment(state, value)
 			fact = engine.get_fact(node)
 			self.assertEqual(fact.functor, 'utility')
 			self.assertEqual(fact.args, (state, Constant(value)))
+
+	def test_get_assignment(self):
+		engine = self.engines['sysadmin']
+		assignments = engine.assignments('utility')
+		instructions = engine.get_instructions_table()
+		facts = instructions['fact']
+		for node, fact in facts:
+			if fact.functor == 'utility':
+				assignment = engine.get_assignment(node)
+				self.assertEqual(assignment[0], fact.args[0])
+				self.assertEqual(assignment[1], fact.args[1])
+			else:
+				with self.assertRaises(IndexError):
+					not_an_assignment = engine.get_assignment(node)
+
 
 	def test_add_fact(self):
 		engine = self.engines['sysadmin']
@@ -141,7 +156,7 @@ class TestEngine(unittest.TestCase):
 			if instruction_type != 'fact':
 				for node,instruction in instructions[instruction_type]:
 					with self.assertRaises(IndexError):
-						engine.get_fact(node)
+						not_a_fact = engine.get_fact(node)
 
 	def test_add_rule(self):
 		engine = self.engines['sysadmin']
@@ -182,7 +197,7 @@ class TestEngine(unittest.TestCase):
 			if instruction_type != 'clause':
 				for node,instruction in instructions[instruction_type]:
 					with self.assertRaises(IndexError):
-						engine.get_rule(node)
+						not_a_rule = engine.get_rule(node)
 
 
 if __name__ == '__main__':
