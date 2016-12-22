@@ -107,6 +107,17 @@ class TestEngine(unittest.TestCase):
 					self.assertTrue(str(term) in expected_assignments)
 					self.assertEqual(value, expected_assignments[str(term)])
 
+	def test_add_assignment(self):
+		engine = self.engines['sysadmin']
+		fluents = engine.declarations('state_fluent')
+		for i in range(2**len(fluents)):
+			state = Term('__s%d__' % i)
+			value = (-1)**(i % 2) * 10*i
+			node = engine.add_assignment(state, value)
+			fact = engine.get_fact(node)
+			self.assertEqual(fact.functor, 'utility')
+			self.assertEqual(fact.args, (state, Constant(value)))
+
 	def test_add_fact(self):
 		engine = self.engines['sysadmin']
 		terms = engine.declarations('state_fluent')
@@ -114,8 +125,8 @@ class TestEngine(unittest.TestCase):
 		for term in terms:
 			term = Fluent.create_fluent(term, 0)
 			p = random.choice([random.random(), None])
-			n = engine.add_fact(term, p)
-			fact = engine.get_fact(n)
+			node = engine.add_fact(term, p)
+			fact = engine.get_fact(node)
 			self.assertEqual(fact.functor, term.functor)
 			self.assertEqual(fact.args, term.args)
 			self.assertEqual(fact.probability, p)

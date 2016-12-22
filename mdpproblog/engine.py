@@ -121,3 +121,18 @@ class Engine(object):
 		if not str(rule).startswith('clause'):
 			raise IndexError('Node `%d` is not a rule.' % node)
 		return rule
+
+	def add_assignment(self, term, value):
+		"""
+		Add a new utility assignment of `value` to `term` in the program database.
+		Return the corresponding node number.
+
+		:param term: a predicate
+		:type term: problog.logic.Term
+		:param value: a numeric value
+		:type value: float
+		:rtype: int
+		"""
+		args = (term.with_probability(None), Constant(1.0*value))
+		utility = Term('utility', *args)
+		return self._db.add_fact(utility)
