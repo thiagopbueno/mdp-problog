@@ -220,15 +220,32 @@ class TestEngine(unittest.TestCase):
 					with self.assertRaises(IndexError):
 						not_a_rule = engine.get_rule(node)
 
+	def test_add_and_get_annotated_disjunction(self):
+		engine = self.engines['sysadmin']
+		actions = engine.declarations('action')
+		action_disjunction = [action.with_probability(Constant(1.0/len(actions))) for action in actions]
+		nodes = engine.add_annotated_disjunction(action_disjunction)
+		choices = engine.get_annotated_disjunction(nodes)
+
+		engine.relevant_ground(actions)
+		engine.compile()
+
+		queries = { action: engine._knowledge.get_node_by_name(action) for action in actions }
+
+		result = engine.evaluate(queries, None)
+		for action, choice in zip(actions, choices):
+			probability = 1.0/len(actions)
+			self.assertAlmostEqual(result[action], probability)
+			self.assertAlmostEqual(choice.probability, probability)
+			self.assertTrue(action in choice.functor.args)
 
 	def test_evaluate(self):
 		engine = self.engines['sysadmin']
 
 		actions = engine.declarations('action')
 		action2term = { str(term): term for term in actions }
-		heads = [a.with_probability(Constant(1.0/len(actions))) for a in actions]
-		ad = AnnotatedDisjunction(heads=heads, body=Constant('true'))
-		engine._db += ad
+		disjunction = [a.with_probability(Constant(1.0/len(actions))) for a in actions]
+		engine.add_annotated_disjunction(disjunction)
 
 		fluents = [Fluent.create_fluent(term, 0) for term in engine.declarations('state_fluent')]
 		fluent2term = { str(term): term for term in fluents }
@@ -257,7 +274,6 @@ class TestEngine(unittest.TestCase):
 				queries[query] = node
 
 		result = engine.evaluate(queries, evidence)
-
 
 if __name__ == '__main__':
 	unittest.main(verbosity=2)

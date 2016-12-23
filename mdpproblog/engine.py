@@ -15,7 +15,7 @@
 
 from problog.program import PrologString
 from problog.engine  import DefaultEngine
-from problog.logic   import Term, Constant
+from problog.logic   import Term, Constant, AnnotatedDisjunction
 from problog         import get_evaluatable
 
 class Engine(object):
@@ -153,6 +153,48 @@ class Engine(object):
 			raise IndexError('Node `%d` is not an assignment.' % node)
 		return (fact.args[0], fact.args[1])
 
+	def add_annotated_disjunction(self, disjunction):
+		"""
+		Add a new annotated `disjunction` to the program database.
+		Return list of choice nodes.
+
+		:param disjunction: list of probabilistic facts
+		:type  disjunction: list of problog.logic.Term with
+		                    valid individual probabilities and total probability
+		                    less than or equal to 1.0
+		:rtype: list of int
+		"""
+		self._db += AnnotatedDisjunction(heads=disjunction, body=Constant('true'))
+
+		choices = []
+		for node, term in enumerate(self._db._ClauseDB__nodes):
+			if str(term).startswith('choice'):
+				choices.append((term, node))
+
+		nodes = []
+		for term in disjunction:
+			term = term.with_probability(None)
+			for choice, node in choices:
+				if term in choice.functor.args:
+					nodes.append(node)
+		return nodes
+
+	def get_annotated_disjunction(self, nodes):
+		"""
+		Return the list of choice nodes in the table of instructions
+		corresponding to `nodes`.
+
+		:param nodes: list of node identifiers
+		:type nodes: list of int
+		:rtype: list of problog.engine.choice
+		"""
+		choices = [ self._db.get_node(node) for node in nodes ]
+		for choice in choices:
+			if not str(choice).startswith('choice'):
+				raise IndexError('Node `%d` is not a choice node.' % choice)
+		return choices
+
+
 	def relevant_ground(self, queries):
 		"""
 		Create ground program with respect to `queries`.
@@ -170,8 +212,8 @@ class Engine(object):
 		"""
 		Compute probabilities of `queries` given `evidence`.
 
-		:param queries: list of predicates
-		:type queries: list of problog.logic.Term
+		:param queries: mapping of predicates to nodes
+		:type queries: dict of (problog.logic.Term, int)
 		:param evidence: mapping of predicate and evidence weight
 		:type evidence: dictionary of (problog.logic.Term, {0, 1})
 		:rtype: dictionary of (problog.logic.Term, [0.0, 1.0])
