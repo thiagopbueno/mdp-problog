@@ -16,10 +16,11 @@
 from problog.program import PrologString
 from problog.engine  import DefaultEngine
 from problog.logic   import Term, Constant
+from problog         import get_evaluatable
 
 class Engine(object):
 	"""
-	Adapter class to Problog grounding engine.
+	Adapter class to Problog grounding and query engine.
 
 	:param program: a valid MDP-ProbLog program
 	:type program: str
@@ -28,6 +29,8 @@ class Engine(object):
 	def __init__(self, program):
 		self._engine = DefaultEngine()
 		self._db = self._engine.prepare(PrologString(program))
+		self._gp = None
+		self._knowledge = None
 
 	def declarations(self, declaration_type):
 		"""
@@ -149,3 +152,30 @@ class Engine(object):
 		if not (str(fact).startswith('fact') and fact.functor == 'utility'):
 			raise IndexError('Node `%d` is not an assignment.' % node)
 		return (fact.args[0], fact.args[1])
+
+	def relevant_ground(self, queries):
+		"""
+		Create ground program with respect to `queries`.
+
+		:param queries: list of predicates
+		:type queries: list of problog.logic.Term
+		"""
+		self._gp = self._engine.ground_all(self._db, queries=queries)
+
+	def compile(self):
+		""" Create compiled knowledge database from ground program. """
+		self._knowledge = get_evaluatable(None).create_from(self._gp)
+
+	def evaluate(self, queries, evidence):
+		"""
+		Compute probabilities of `queries` given `evidence`.
+
+		:param queries: list of predicates
+		:type queries: list of problog.logic.Term
+		:param evidence: mapping of predicate and evidence weight
+		:type evidence: dictionary of (problog.logic.Term, {0, 1})
+		:rtype: dictionary of (problog.logic.Term, [0.0, 1.0])
+		"""
+		evaluator = self._knowledge.get_evaluator(semiring=None, evidence=None, weights=evidence)
+		result = { query: evaluator.evaluate(node) for query, node in queries.items() }
+		return result

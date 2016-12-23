@@ -22,7 +22,8 @@ sys.path.insert(0, os.path.abspath('..'))
 import unittest
 import random
 
-from problog.logic import Term, Constant
+from problog.logic import Term, Constant, AnnotatedDisjunction
+from problog.program import PrologString
 
 import mdpproblog.engine as eng
 from mdpproblog.fluent import Fluent
@@ -35,10 +36,31 @@ class TestEngine(unittest.TestCase):
 			'sysadmin':
 				"""
 				computer(c1). computer(c2). computer(c3).
+				connected(c1,[c2,c3]). connected(c2,[c1]). connected(c3,[c1]).
+
+				accTotal([],A,A).
+				accTotal([_|T],A,X) :- B is A+1, accTotal(T,B,X).
+				total(L,T) :- accTotal(L,0,T).
+				total_connected(C,T) :- connected(C,L), total(L,T).
+
+				accAlive([],A,A).
+				accAlive([H|T],A,X) :- running(H,0), B is A+1, accAlive(T,B,X).
+				accAlive([H|T],A,X) :- not(running(H,0)), B is A, accAlive(T,B,X).
+				alive(L,A) :- accAlive(L,0,A).
+				total_running(C,R) :- connected(C,L), alive(L,R).
+
 				state_fluent(running(C)) :- computer(C).
+
 				action(reboot(C)) :- computer(C).
 				action(reboot(none)).
+
+				1.00::running(C,1) :- reboot(C).
+				0.05::running(C,1) :- not(reboot(C)), not(running(C,0)).
+				P::running(C,1)    :- not(reboot(C)), running(C,0),
+				                      total_connected(C,T), total_running(C,R), P is 0.45+0.50*R/T.
+
 				utility(running(C,1),  1.00) :- computer(C).
+
 				utility(reboot(C), -0.75) :- computer(C).
 				utility(reboot(none), 0.00).
 				""",
@@ -132,7 +154,6 @@ class TestEngine(unittest.TestCase):
 				with self.assertRaises(IndexError):
 					not_an_assignment = engine.get_assignment(node)
 
-
 	def test_add_fact(self):
 		engine = self.engines['sysadmin']
 		terms = engine.declarations('state_fluent')
@@ -198,6 +219,44 @@ class TestEngine(unittest.TestCase):
 				for node,instruction in instructions[instruction_type]:
 					with self.assertRaises(IndexError):
 						not_a_rule = engine.get_rule(node)
+
+
+	def test_evaluate(self):
+		engine = self.engines['sysadmin']
+
+		actions = engine.declarations('action')
+		action2term = { str(term): term for term in actions }
+		heads = [a.with_probability(Constant(1.0/len(actions))) for a in actions]
+		ad = AnnotatedDisjunction(heads=heads, body=Constant('true'))
+		engine._db += ad
+
+		fluents = [Fluent.create_fluent(term, 0) for term in engine.declarations('state_fluent')]
+		fluent2term = { str(term): term for term in fluents }
+		for fluent in fluents:
+			engine.add_fact(fluent, 0.5)
+
+		queries = list(engine.assignments('utility'))
+		engine.relevant_ground(queries)
+
+		engine.compile()
+
+		state_evidence  = { 'running(c1,0)': 1, 'running(c2,0)': 0, 'running(c3,0)': 0 }
+		action_evidence = { 'reboot(c1)': 0, 'reboot(c2)': 1, 'reboot(c3)': 0, 'reboot(none)': 0 }
+
+		evidence = {}
+		for name, value in state_evidence.items():
+			evidence[fluent2term[name]] = value
+		for name, value in action_evidence.items():
+			evidence[action2term[name]] = value
+
+		kb_queries = dict(engine._knowledge.queries())
+		queries = {}
+		for q, node in kb_queries.items():
+			query = str(q)
+			if query in ['running(c1,1)', 'running(c2,1)', 'running(c3,1)']:
+				queries[query] = node
+
+		result = engine.evaluate(queries, evidence)
 
 
 if __name__ == '__main__':
