@@ -83,6 +83,19 @@ class TestMDP(unittest.TestCase):
 		actual_actions = [str(a) for a in self.mdp.actions()]
 		self.assertEqual(actual_actions, expected_actions)
 
+	def test_reward_model(self):
+		reward = self.mdp.reward_model()
+
+		self.assertEqual(len(reward.actions), 4)
+		for term, value in reward.actions.items():
+			if str(term) == 'reboot(none)':
+				self.assertAlmostEqual(value, 0.0)
+			else:
+				self.assertAlmostEqual(value, -0.75)
+
+		self.assertEqual(len(reward.fluents), 3)
+		for term, value in reward.fluents.items():
+			self.assertAlmostEqual(value, 1.0)
 
 if __name__ == '__main__':
 	unittest.main(verbosity=2)

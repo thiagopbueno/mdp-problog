@@ -13,6 +13,9 @@
 # You should have received a copy of the GNU General Public License
 # along with MDP-ProbLog.  If not, see <http://www.gnu.org/licenses/>.
 
+from collections import namedtuple
+RewardModel = namedtuple('RewardModel', ['actions', 'fluents'])
+
 import mdpproblog.engine as eng
 
 class MDP(object):
@@ -59,3 +62,20 @@ class MDP(object):
 		:rtype: list of action objects sorted by string representation
 		"""
 		return sorted(self._engine.declarations('action'), key=lambda action: str(action))
+	def reward_model(self):
+		"""
+		Return the reward model mapping utility attributes
+		to numeric values, separated by actions and fluents.
+
+		:rtype: namedtuple RewardModel(actions, fluents) of
+		        dicts of (problog.logic.Term, float)
+		"""
+		utilities = self._engine.assignments('utility')
+		action_utilites = {}
+		fluent_utilities = {}
+		for term, value in utilities.items():
+			if term in self.actions():
+				action_utilites[term] = value
+			else:
+				fluent_utilities[term] = value
+		return RewardModel(actions=action_utilites, fluents=fluent_utilities)
