@@ -223,8 +223,7 @@ class TestEngine(unittest.TestCase):
 	def test_add_and_get_annotated_disjunction(self):
 		engine = self.engines['sysadmin']
 		actions = engine.declarations('action')
-		action_disjunction = [action.with_probability(Constant(1.0/len(actions))) for action in actions]
-		nodes = engine.add_annotated_disjunction(action_disjunction)
+		nodes = engine.add_annotated_disjunction(actions, [1.0/len(actions)]*len(actions))
 		choices = engine.get_annotated_disjunction(nodes)
 
 		engine.relevant_ground(actions)
@@ -244,8 +243,7 @@ class TestEngine(unittest.TestCase):
 
 		actions = engine.declarations('action')
 		action2term = { str(term): term for term in actions }
-		disjunction = [a.with_probability(Constant(1.0/len(actions))) for a in actions]
-		engine.add_annotated_disjunction(disjunction)
+		engine.add_annotated_disjunction(actions, [1.0/len(actions)]*len(actions))
 
 		fluents = [Fluent.create_fluent(term, 0) for term in engine.declarations('state_fluent')]
 		fluent2term = { str(term): term for term in fluents }
