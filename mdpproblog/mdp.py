@@ -34,7 +34,23 @@ class MDP(object):
 
 		:rtype: list of state fluent objects sorted by string representation
 		"""
-		return sorted(self._engine.declarations('state_fluent'), key=lambda fluent: str(fluent))
+		return sorted(self._engine.declarations('state_fluent'), key=str)
+
+	def current_state_fluents(self):
+		"""
+		Return the ordered list of current state fluent objects.
+
+		:rtype: list of current state fluent objects sorted by string representation
+		"""
+		return [Fluent.create_fluent(f, 0) for f in self.state_fluents()]
+
+	def next_state_fluents(self):
+		"""
+		Return the ordered list of next state fluent objects.
+
+		:rtype: list of next state fluent objects sorted by string representation
+		"""
+		return [Fluent.create_fluent(f, 1) for f in self.state_fluents()]
 
 	def actions(self):
 		"""

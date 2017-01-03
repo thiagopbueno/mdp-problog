@@ -68,6 +68,16 @@ class TestMDP(unittest.TestCase):
 		actual_state_fluents = [str(f) for f in self.mdp.state_fluents()]
 		self.assertEqual(actual_state_fluents, expected_state_fluents)
 
+	def test_current_state_fluents(self):
+		expected_current_state_fluents = ['running(c1,0)', 'running(c2,0)', 'running(c3,0)']
+		actual_current_state_fluents = [str(f) for f in self.mdp.current_state_fluents()]
+		self.assertEqual(actual_current_state_fluents, expected_current_state_fluents)
+
+	def test_next_state_fluents(self):
+		expected_next_state_fluents = ['running(c1,1)', 'running(c2,1)', 'running(c3,1)']
+		actual_next_state_fluents = [str(f) for f in self.mdp.next_state_fluents()]
+		self.assertEqual(actual_next_state_fluents, expected_next_state_fluents)
+
 	def test_actions(self):
 		expected_actions = ['reboot(c1)', 'reboot(c2)', 'reboot(c3)', 'reboot(none)']
 		actual_actions = [str(a) for a in self.mdp.actions()]
