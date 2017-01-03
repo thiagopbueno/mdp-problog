@@ -208,9 +208,20 @@ class Engine(object):
 		"""
 		self._gp = self._engine.ground_all(self._db, queries=queries)
 
-	def compile(self):
-		""" Create compiled knowledge database from ground program. """
+	def compile(self, terms=[]):
+		"""
+		Create compiled knowledge database from ground program.
+		Return mapping of `terms` to nodes in the compiled knowledge database.
+
+		:param terms: list of predicates
+		:type terms: list of problog.logic.Term
+		:rtype: dict of (problog.logic.Term, int)
+		"""
 		self._knowledge = get_evaluatable(None).create_from(self._gp)
+		term2node = {}
+		for term in terms:
+			term2node[term] = self._knowledge.get_node_by_name(term)
+		return term2node
 
 	def evaluate(self, queries, evidence):
 		"""
