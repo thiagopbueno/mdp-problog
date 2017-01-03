@@ -231,7 +231,7 @@ class TestEngine(unittest.TestCase):
 
 		queries = { action: engine._knowledge.get_node_by_name(action) for action in actions }
 
-		result = engine.evaluate(queries, None)
+		result = dict(engine.evaluate(queries, None))
 		for action, choice in zip(actions, choices):
 			probability = 1.0/len(actions)
 			self.assertAlmostEqual(result[action], probability)

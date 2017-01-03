@@ -231,8 +231,7 @@ class Engine(object):
 		:type queries: dict of (problog.logic.Term, int)
 		:param evidence: mapping of predicate and evidence weight
 		:type evidence: dictionary of (problog.logic.Term, {0, 1})
-		:rtype: dictionary of (problog.logic.Term, [0.0, 1.0])
+		:rtype: list of (problog.logic.Term, [0.0, 1.0])
 		"""
 		evaluator = self._knowledge.get_evaluator(semiring=None, evidence=None, weights=evidence)
-		result = { query: evaluator.evaluate(node) for query, node in queries.items() }
-		return result
+		return [ (query, evaluator.evaluate(queries[query])) for query in sorted(queries, key=str) ]
