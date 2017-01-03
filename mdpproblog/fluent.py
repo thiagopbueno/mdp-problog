@@ -35,3 +35,20 @@ class Fluent(object):
 		"""
 		args = term.args + (Constant(timestep),)
 		return term.with_args(*args)
+
+class State(object):
+
+	@classmethod
+	def create_state(cls, size):
+		return [0]*size
+
+	@classmethod
+	def next_state(cls, state):
+		new_state = state.copy()
+		for i, val in enumerate(new_state):
+			if val == 0:
+				new_state[i] = 1
+				break
+			else:
+				new_state[i] = 0
+		return new_state

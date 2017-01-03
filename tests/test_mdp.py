@@ -22,6 +22,7 @@ sys.path.insert(0, os.path.abspath('..'))
 import unittest
 
 import mdpproblog.mdp as mdp
+from mdpproblog.fluent import State
 
 class TestMDP(unittest.TestCase):
 
@@ -96,6 +97,43 @@ class TestMDP(unittest.TestCase):
 		self.assertEqual(len(reward.fluents), 3)
 		for term, value in reward.fluents.items():
 			self.assertAlmostEqual(value, 1.0)
+
+	def test_transition(self):
+		actions = self.mdp.actions()
+		current_state_fluents = self.mdp.current_state_fluents()
+
+		state = State.create_state(len(current_state_fluents))
+		action = [0]*len(actions)
+		action[-1] = 1
+		for i in range(2**len(current_state_fluents)):
+			for j in range(len(actions)):
+				action[j-1] = 0
+				action[j] = 1
+				probabilities = self.mdp.transition(state, action)
+
+				for k, (term,prob) in enumerate(probabilities):
+					if k == j:
+						self.assertAlmostEqual(prob, 1.0)
+					elif state[k] == 0:
+						self.assertAlmostEqual(prob, 0.05)
+					else:
+						connected = [[1,2], [0], [0]]
+						alive = sum([x for i, x in enumerate(state) if i in connected[k]])
+						total = len(connected[k])
+						self.assertAlmostEqual(prob, 0.45 + 0.50*alive/total)
+
+			state = State.next_state(state)
+
+	def test_transition_model(self):
+		actions = self.mdp.actions()
+		current_state_fluents = self.mdp.current_state_fluents()
+
+		model = self.mdp.transition_model()
+		self.assertEqual(len(model), len(actions) * 2**len(current_state_fluents))
+		for (state, action) in model:
+			probabilities = tuple(round(prob, 3) for term, prob in model[(state, action)])
+			self.assertEqual(len(probabilities), len(current_state_fluents))
+			self.assertTrue(all([p >= 0.0 and p <= 1.0 for p in probabilities]))
 
 if __name__ == '__main__':
 	unittest.main(verbosity=2)
