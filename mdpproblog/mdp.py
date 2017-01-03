@@ -17,7 +17,7 @@ from collections import namedtuple
 RewardModel = namedtuple('RewardModel', ['actions', 'fluents'])
 
 import mdpproblog.engine as eng
-from mdpproblog.fluent import Fluent, State
+from mdpproblog.fluent import Fluent, StateSpace, ActionSpace
 
 class MDP(object):
 	"""
@@ -92,32 +92,23 @@ class MDP(object):
 		:param action: action vector representation
 		:type action: one-hot vector encoding of action as a list of 0/1
 		"""
-		evidence = dict(zip(self.current_state_fluents(), state))
-		evidence.update(dict(zip(self.actions(), action)))
+		evidence = state.copy()
+		evidence.update(action)
 		return self._engine.evaluate(self.__queries, evidence)
 
 	def transition_model(self):
 		"""
 		Return the transition model of all valid transitions.
 
-		:rtype: dict of ((tuple(state),action), list of probabilities)
+		:rtype: dict of ((state,action), list of probabilities)
 		"""
 		transitions = {}
-
-		current_state_fluents = self.current_state_fluents()
-		actions = self.actions()
-
-		state = State.create_state(len(current_state_fluents))
-		action = [0]*len(actions)
-		action[-1] = 1
-		for i in range(2**len(current_state_fluents)):
-			for j in range(len(actions)):
-				action[j-1] = 0
-				action[j] = 1
+		states  = StateSpace(self.current_state_fluents())
+		actions = ActionSpace(self.actions())
+		for state in states:
+			for j, action in enumerate(actions):
 				probabilities = self.transition(state, action)
-				transitions[(tuple(state), actions[j])] = probabilities
-			state = State.next_state(state)
-
+				transitions[(tuple(state.values()), tuple(action.values()))] = probabilities
 		return transitions
 
 	def reward_model(self):
