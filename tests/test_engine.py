@@ -165,7 +165,10 @@ class TestEngine(unittest.TestCase):
 			fact = engine.get_fact(node)
 			self.assertEqual(fact.functor, term.functor)
 			self.assertEqual(fact.args, term.args)
-			self.assertEqual(fact.probability, p)
+			if p is None:
+				self.assertEqual(str(fact.probability), 'None')
+			else:
+				self.assertAlmostEqual(float(str(fact.probability)), p)
 
 	def test_get_fact(self):
 		engine = self.engines['sysadmin']
