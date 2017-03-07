@@ -35,20 +35,25 @@ class MDP(object):
 		self.__prepare()
 
 	def __prepare(self):
-		engine = self._engine
+		""" Prepare the mdp-problog knowledge database to accept queries. """
 
-		for term in engine.declarations('state_fluent'):
-			engine.add_fact(Fluent.create_fluent(term, 0), 0.5)
+		# add dummy current state fluents probabilistic facts
+		for term in self.state_fluents():
+			self._engine.add_fact(Fluent.create_fluent(term, 0), 0.5)
 
-		actions = engine.declarations('action')
-		engine.add_annotated_disjunction(actions, [1.0/len(actions)]*len(actions))
+		# add dummy actions annotated disjunction
+		actions = self.actions()
+		self._engine.add_annotated_disjunction(actions, [1.0/len(actions)]*len(actions))
 
-		utilities = engine.assignments('utility')
-		next_state_fluents = [Fluent.create_fluent(f, 1) for f in self.state_fluents()]
-		queries = list(set(utilities) | set(next_state_fluents) | set(actions))
+		# ground the mdp-problog program
+		self.__utilities = self._engine.assignments('utility')
+		next_state_fluents = self.next_state_fluents()
+		queries = list(set(self.__utilities) | set(next_state_fluents) | set(actions))
+		self._engine.relevant_ground(queries)
 
-		engine.relevant_ground(queries)
-		self.__queries = engine.compile(self.next_state_fluents())
+		# compile query database
+		self.__next_state_queries = self._engine.compile(next_state_fluents)
+		self.__reward_queries = self._engine.compile(self.__utilities)
 
 	def state_fluents(self):
 		"""
@@ -91,10 +96,11 @@ class MDP(object):
 		:type state: list of 0/1 according to state fluents order
 		:param action: action vector representation
 		:type action: one-hot vector encoding of action as a list of 0/1
+		:rtype: list of pairs (problog.logic.Term, float)
 		"""
 		evidence = state.copy()
 		evidence.update(action)
-		return self._engine.evaluate(self.__queries, evidence)
+		return self._engine.evaluate(self.__next_state_queries, evidence)
 
 	def transition_model(self):
 		"""
