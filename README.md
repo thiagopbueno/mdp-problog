@@ -1,6 +1,6 @@
 # MDP-ProbLog
 
-MDP-ProbLog is a framework to represent and solve (infinite-horizon) MDPs by probabilistic logic programming.
+> MDP-ProbLog is a framework to represent and solve (infinite-horizon) MDPs by probabilistic logic programming.
 
 
 ## Install
@@ -8,15 +8,14 @@ MDP-ProbLog is a framework to represent and solve (infinite-horizon) MDPs by pro
 It is required to have Python3 installed.
 
 ```
-$ pip3 install problog
-$ git clone https://github.com/thiagopbueno/mdp-problog.git
+$ pip3 install mdpproblog
 ```
 
 ## Usage
 
 ```
-$ ./mdp-problog.py --help
-usage: mdp-problog.py [-h] [-g GAMMA] [-e EPS] [-v VERBOSE] domain instance
+$ mdp-problog --help
+usage: mdp-problog [-h] [-g GAMMA] [-e EPSILON] domain instance
 
 positional arguments:
   domain                path to MDP domain file
@@ -26,9 +25,8 @@ optional arguments:
   -h, --help            show this help message and exit
   -g GAMMA, --gamma GAMMA
                         discount factor (default=0.9)
-  -e EPS, --eps EPS     relative error  (default=0.1)
-  -v VERBOSE, --verbose VERBOSE
-                        verbose mode (default=0)
+  -e EPSILON, --epsilon EPSILON
+                        maximum error (default=0.1)
 ```
 
 ## Input
@@ -71,40 +69,43 @@ utility(reboot(C), -0.75) :- computer(C).
 utility(reboot(none), 0.00).
 
 % rewards
-utility(running(C,1),  1.00) :- computer(C).
+utility(running(C,0),  1.00) :- computer(C).
 
 ```
 
 ## Example
 
 ```
-$ ./mdp-problog.py models/sysadmin/domain.pl models/sysadmin/star2.pl --eps 0.1 --gamma 0.9
+$ mdp-problog models/sysadmin/domain.pl models/sysadmin/star2.pl --epsilon 0.01 --gamma 0.9
 
-  >> Preprocessing program ... Done in 0.025sec.
-  >> Relevant grounding ... Done in 0.050sec.
-  >> Compilation ... Done in 0.017sec.
+Value(running(c1,0)=0, running(c2,0)=0, running(c3,0)=0) = 16.976
+Value(running(c1,0)=1, running(c2,0)=0, running(c3,0)=0) = 19.314
+Value(running(c1,0)=0, running(c2,0)=1, running(c3,0)=0) = 19.343
+Value(running(c1,0)=1, running(c2,0)=1, running(c3,0)=0) = 23.173
+Value(running(c1,0)=0, running(c2,0)=0, running(c3,0)=1) = 19.343
+Value(running(c1,0)=1, running(c2,0)=0, running(c3,0)=1) = 23.173
+Value(running(c1,0)=0, running(c2,0)=1, running(c3,0)=1) = 21.525
+Value(running(c1,0)=1, running(c2,0)=1, running(c3,0)=1) = 25.752
 
->> Policy:
-Pi(running(c1,0)=0, running(c2,0)=0, running(c3,0)=0) = reboot(c1)
-Pi(running(c1,0)=0, running(c2,0)=0, running(c3,0)=1) = reboot(c1)
-Pi(running(c1,0)=0, running(c2,0)=1, running(c3,0)=0) = reboot(c1)
-Pi(running(c1,0)=0, running(c2,0)=1, running(c3,0)=1) = reboot(c1)
-Pi(running(c1,0)=1, running(c2,0)=0, running(c3,0)=0) = reboot(c2)
-Pi(running(c1,0)=1, running(c2,0)=0, running(c3,0)=1) = reboot(c2)
-Pi(running(c1,0)=1, running(c2,0)=1, running(c3,0)=0) = reboot(c3)
-Pi(running(c1,0)=1, running(c2,0)=1, running(c3,0)=1) = reboot(none)
+Policy(running(c1,0)=0, running(c2,0)=0, running(c3,0)=0) = reboot(c1)
+Policy(running(c1,0)=1, running(c2,0)=0, running(c3,0)=0) = reboot(c3)
+Policy(running(c1,0)=0, running(c2,0)=1, running(c3,0)=0) = reboot(c1)
+Policy(running(c1,0)=1, running(c2,0)=1, running(c3,0)=0) = reboot(c3)
+Policy(running(c1,0)=0, running(c2,0)=0, running(c3,0)=1) = reboot(c1)
+Policy(running(c1,0)=1, running(c2,0)=0, running(c3,0)=1) = reboot(c2)
+Policy(running(c1,0)=0, running(c2,0)=1, running(c3,0)=1) = reboot(c1)
+Policy(running(c1,0)=1, running(c2,0)=1, running(c3,0)=1) = reboot(none)
 
->> Value:
-V(running(c1,0)=0, running(c2,0)=0, running(c3,0)=0) = 19.1341
-V(running(c1,0)=0, running(c2,0)=0, running(c3,0)=1) = 20.6162
-V(running(c1,0)=0, running(c2,0)=1, running(c3,0)=0) = 20.6162
-V(running(c1,0)=0, running(c2,0)=1, running(c3,0)=1) = 21.8910
-V(running(c1,0)=1, running(c2,0)=0, running(c3,0)=0) = 20.5864
-V(running(c1,0)=1, running(c2,0)=0, running(c3,0)=1) = 23.6645
-V(running(c1,0)=1, running(c2,0)=1, running(c3,0)=0) = 23.6645
-V(running(c1,0)=1, running(c2,0)=1, running(c3,0)=1) = 25.3019
-
->> Value iteration converged in 0.295sec after 45 iterations.
-@ Average time per iteration = 0.007sec.
-@ Max error = 0.02158
+>> Value iteration converged in 0.181sec after 59 iterations.
+>> Average time per iteration = 0.003sec.
 ```
+
+## License
+
+Copyright (c) 2016-2017 Thiago Pereira Bueno All Rights Reserved.
+
+MDPProbLog is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+MDPProbLog is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along with MDPProbLog. If not, see [http://www.gnu.org/licenses/](http://www.gnu.org/licenses/).
