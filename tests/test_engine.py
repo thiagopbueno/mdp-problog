@@ -165,7 +165,10 @@ class TestEngine(unittest.TestCase):
 			fact = engine.get_fact(node)
 			self.assertEqual(fact.functor, term.functor)
 			self.assertEqual(fact.args, term.args)
-			self.assertEqual(fact.probability, p)
+			if p is None:
+				self.assertEqual(str(fact.probability), 'None')
+			else:
+				self.assertAlmostEqual(float(str(fact.probability)), p)
 
 	def test_get_fact(self):
 		engine = self.engines['sysadmin']
@@ -223,8 +226,7 @@ class TestEngine(unittest.TestCase):
 	def test_add_and_get_annotated_disjunction(self):
 		engine = self.engines['sysadmin']
 		actions = engine.declarations('action')
-		action_disjunction = [action.with_probability(Constant(1.0/len(actions))) for action in actions]
-		nodes = engine.add_annotated_disjunction(action_disjunction)
+		nodes = engine.add_annotated_disjunction(actions, [1.0/len(actions)]*len(actions))
 		choices = engine.get_annotated_disjunction(nodes)
 
 		engine.relevant_ground(actions)
@@ -232,7 +234,7 @@ class TestEngine(unittest.TestCase):
 
 		queries = { action: engine._knowledge.get_node_by_name(action) for action in actions }
 
-		result = engine.evaluate(queries, None)
+		result = dict(engine.evaluate(queries, None))
 		for action, choice in zip(actions, choices):
 			probability = 1.0/len(actions)
 			self.assertAlmostEqual(result[action], probability)
@@ -244,8 +246,7 @@ class TestEngine(unittest.TestCase):
 
 		actions = engine.declarations('action')
 		action2term = { str(term): term for term in actions }
-		disjunction = [a.with_probability(Constant(1.0/len(actions))) for a in actions]
-		engine.add_annotated_disjunction(disjunction)
+		engine.add_annotated_disjunction(actions, [1.0/len(actions)]*len(actions))
 
 		fluents = [Fluent.create_fluent(term, 0) for term in engine.declarations('state_fluent')]
 		fluent2term = { str(term): term for term in fluents }

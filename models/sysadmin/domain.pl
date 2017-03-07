@@ -35,4 +35,4 @@ utility(reboot(C), -0.75) :- computer(C).
 utility(reboot(none), 0.00).
 
 % rewards
-utility(running(C,1),  1.00) :- computer(C).
+utility(running(C,0),  1.00) :- computer(C).

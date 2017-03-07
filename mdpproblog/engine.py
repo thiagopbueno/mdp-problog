@@ -153,17 +153,21 @@ class Engine(object):
 			raise IndexError('Node `%d` is not an assignment.' % node)
 		return (fact.args[0], fact.args[1])
 
-	def add_annotated_disjunction(self, disjunction):
+	def add_annotated_disjunction(self, facts, probabilities):
 		"""
-		Add a new annotated `disjunction` to the program database.
-		Return list of choice nodes.
+		Add a new annotated disjunction to the program database from
+		a list of `facts` and its `probabilities`.
+		Return a list of choice nodes.
 
-		:param disjunction: list of probabilistic facts
-		:type  disjunction: list of problog.logic.Term with
-		                    valid individual probabilities and total probability
-		                    less than or equal to 1.0
+		:param facts: list of probabilistic facts
+		:type  facts: list of problog.logic.Term
+		:param probabilities: list of valid individual probabilities
+		                      such that the total probability is less
+		                      than or equal to 1.0
+		:type probabilities: list of float in [0.0, 1.0]
 		:rtype: list of int
 		"""
+		disjunction = [ f.with_probability(Constant(p)) for f,p in zip(facts, probabilities) ]
 		self._db += AnnotatedDisjunction(heads=disjunction, body=Constant('true'))
 
 		choices = []
@@ -204,9 +208,20 @@ class Engine(object):
 		"""
 		self._gp = self._engine.ground_all(self._db, queries=queries)
 
-	def compile(self):
-		""" Create compiled knowledge database from ground program. """
+	def compile(self, terms=[]):
+		"""
+		Create compiled knowledge database from ground program.
+		Return mapping of `terms` to nodes in the compiled knowledge database.
+
+		:param terms: list of predicates
+		:type terms: list of problog.logic.Term
+		:rtype: dict of (problog.logic.Term, int)
+		"""
 		self._knowledge = get_evaluatable(None).create_from(self._gp)
+		term2node = {}
+		for term in terms:
+			term2node[term] = self._knowledge.get_node_by_name(term)
+		return term2node
 
 	def evaluate(self, queries, evidence):
 		"""
@@ -216,8 +231,7 @@ class Engine(object):
 		:type queries: dict of (problog.logic.Term, int)
 		:param evidence: mapping of predicate and evidence weight
 		:type evidence: dictionary of (problog.logic.Term, {0, 1})
-		:rtype: dictionary of (problog.logic.Term, [0.0, 1.0])
+		:rtype: list of (problog.logic.Term, [0.0, 1.0])
 		"""
 		evaluator = self._knowledge.get_evaluator(semiring=None, evidence=None, weights=evidence)
-		result = { query: evaluator.evaluate(node) for query, node in queries.items() }
-		return result
+		return [ (query, evaluator.evaluate(queries[query])) for query in sorted(queries, key=str) ]

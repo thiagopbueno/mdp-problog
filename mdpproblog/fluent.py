@@ -15,6 +15,8 @@
 
 from problog.logic import Term, Constant
 
+from collections import OrderedDict
+
 class Fluent(object):
 	"""
 	Factory class for building fluent terms. A fluent term is a
@@ -35,3 +37,68 @@ class Fluent(object):
 		"""
 		args = term.args + (Constant(timestep),)
 		return term.with_args(*args)
+
+
+class StateSpace(object):
+	"""
+	Iterator class for looping over vector representations of
+	states in a factored MDP defined by `state_fluents`. Each state
+	is implemented by an OrderedDict of (problog.logic.Term, 0/1).
+
+	:param state_fluents: predicates defining a state in a given timestep
+	:type state_fluents: list of problog.logic.Term
+	"""
+
+	def __init__(self, state_fluents):
+		self.__state_fluents = state_fluents
+		self.__state_space_size = 2**len(self.__state_fluents)
+
+	def __iter__(self):
+		self.__state_number = 0
+		self.__state = OrderedDict([ (fluent, 1) for fluent in self.__state_fluents ])
+		return self
+
+	def __next__(self):
+		if self.__state_number == self.__state_space_size:
+			raise StopIteration
+
+		for fluent, value in self.__state.items():
+			if value == 1:
+				self.__state[fluent] = 0
+			else:
+				self.__state[fluent] = 1
+				break
+
+		self.__state_number += 1
+		return self.__state
+
+
+class ActionSpace(object):
+	"""
+	Iterator class for looping over vector representations of
+	`actions` in a factored MDP. Each action is implemented by
+	an OrderedDict of (problog.logic.Term, 0/1).
+
+	:param actions: predicates listing possible actions
+	:type actions: list of problog.logic.Term
+	"""
+
+	def __init__(self, actions):
+		self.__actions = actions
+		self.__action_space_size = len(self.__actions)
+
+	def __iter__(self):
+		self.__action_number = 0
+		self.__action = OrderedDict([ (action, 0) for action in self.__actions ])
+		self.__action[self.__actions[-1]] = 1
+		return self
+
+	def __next__(self):
+		if self.__action_number == self.__action_space_size:
+			raise StopIteration
+
+		self.__action[self.__actions[self.__action_number-1]] = 0
+		self.__action[self.__actions[self.__action_number]] = 1
+
+		self.__action_number += 1
+		return self.__action
