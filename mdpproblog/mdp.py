@@ -13,9 +13,6 @@
 # You should have received a copy of the GNU General Public License
 # along with MDP-ProbLog.  If not, see <http://www.gnu.org/licenses/>.
 
-from collections import namedtuple
-RewardModel = namedtuple('RewardModel', ['actions', 'fluents'])
-
 import mdpproblog.engine as eng
 from mdpproblog.fluent import Fluent, StateSpace, ActionSpace
 
@@ -112,25 +109,40 @@ class MDP(object):
 		states  = StateSpace(self.current_state_fluents())
 		actions = ActionSpace(self.actions())
 		for state in states:
-			for j, action in enumerate(actions):
+			for action in actions:
 				probabilities = self.transition(state, action)
 				transitions[(tuple(state.values()), tuple(action.values()))] = probabilities
 		return transitions
 
+	def reward(self, state, action):
+		"""
+		Return the immediate reward value of the transition
+		induced by applying `action` to the given `state`.
+
+		:param state: state vector representation of current state fluents
+		:type state: list of 0/1 according to state fluents order
+		:param action: action vector representation
+		:type action: one-hot vector encoding of action as a list of 0/1
+		:rtype: float
+		"""
+		evidence = state.copy()
+		evidence.update(action)
+		total = 0
+		for term, prob in self._engine.evaluate(self.__reward_queries, evidence):
+			total += prob * self.__utilities[term].value
+		return total
+
 	def reward_model(self):
 		"""
-		Return the reward model mapping utility attributes
-		to numeric values, separated by actions and fluents.
+		Return the reward model of all valid transitions.
 
-		:rtype: namedtuple RewardModel(actions, fluents) of
-		        dicts of (problog.logic.Term, float)
+		:rtype: dict of ((state,action), float)
 		"""
-		utilities = self._engine.assignments('utility')
-		action_utilites = {}
-		fluent_utilities = {}
-		for term, value in utilities.items():
-			if term in self.actions():
-				action_utilites[term] = value
-			else:
-				fluent_utilities[term] = value
-		return RewardModel(actions=action_utilites, fluents=fluent_utilities)
+		rewards = {}
+		states  = StateSpace(self.current_state_fluents())
+		actions = ActionSpace(self.actions())
+		for state in states:
+			for action in actions:
+				reward = self.reward(state, action)
+				rewards[(tuple(state.values()), tuple(action.values()))] = reward
+		return rewards

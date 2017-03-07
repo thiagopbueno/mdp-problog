@@ -55,7 +55,7 @@ class TestMDP(unittest.TestCase):
 				P::running(C,1)    :- not(reboot(C)), running(C,0),
 				                      total_connected(C,T), total_running(C,R), P is 0.45+0.50*R/T.
 
-				utility(running(C,1),  1.00) :- computer(C).
+				utility(running(C,0),  1.00) :- computer(C).
 
 				utility(reboot(C), -0.75) :- computer(C).
 				utility(reboot(none), 0.00).
@@ -83,20 +83,6 @@ class TestMDP(unittest.TestCase):
 		expected_actions = ['reboot(c1)', 'reboot(c2)', 'reboot(c3)', 'reboot(none)']
 		actual_actions = [str(a) for a in self.mdp.actions()]
 		self.assertEqual(actual_actions, expected_actions)
-
-	def test_reward_model(self):
-		reward = self.mdp.reward_model()
-
-		self.assertEqual(len(reward.actions), 4)
-		for term, value in reward.actions.items():
-			if str(term) == 'reboot(none)':
-				self.assertAlmostEqual(value, 0.0)
-			else:
-				self.assertAlmostEqual(value, -0.75)
-
-		self.assertEqual(len(reward.fluents), 3)
-		for term, value in reward.fluents.items():
-			self.assertAlmostEqual(value, 1.0)
 
 	def test_transition(self):
 		states  = StateSpace(self.mdp.current_state_fluents())
@@ -126,6 +112,28 @@ class TestMDP(unittest.TestCase):
 			probabilities = tuple(prob for term, prob in model[(state, action)])
 			self.assertEqual(len(probabilities), len(current_state_fluents))
 			self.assertTrue(all([p >= 0.0 and p <= 1.0 for p in probabilities]))
+
+	def test_reward(self):
+		states  = StateSpace(self.mdp.current_state_fluents())
+		actions = ActionSpace(self.mdp.actions())
+		for state in states:
+			state_reward = 0
+			for (fluent, value) in state.items():
+				if value:
+					state_reward += 1.0
+			for action in actions:
+				action_cost = 0
+				for (a, value) in action.items():
+					if value and a.__str__() != 'reboot(none)':
+						action_cost += 0.75
+				reward = self.mdp.reward(state, action)
+				self.assertAlmostEqual(reward, state_reward - action_cost)
+
+	def test_reward_model(self):
+		rewards = self.mdp.reward_model()
+		states  = StateSpace(self.mdp.current_state_fluents())
+		actions = ActionSpace(self.mdp.actions())
+		self.assertEqual(len(rewards), len(states) * len(actions))
 
 if __name__ == '__main__':
 	unittest.main(verbosity=2)
