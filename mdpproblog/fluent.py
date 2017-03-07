@@ -53,12 +53,18 @@ class StateSpace(object):
 		self.__state_fluents = state_fluents
 		self.__state_space_size = 2**len(self.__state_fluents)
 
+	def __len__(self):
+		""" Return the number of states of the state space. """
+		return self.__state_space_size
+
 	def __iter__(self):
+		""" Return an iterator over the state space. """
 		self.__state_number = 0
 		self.__state = OrderedDict([ (fluent, 1) for fluent in self.__state_fluents ])
 		return self
 
 	def __next__(self):
+		""" Return next state representation. """
 		if self.__state_number == self.__state_space_size:
 			raise StopIteration
 
@@ -71,6 +77,20 @@ class StateSpace(object):
 
 		self.__state_number += 1
 		return self.__state
+
+	def __getitem__(self, index):
+		"""
+		Return the state representation with given `index`.
+
+		:param index: state index in state space
+		:type index: int
+		"""
+		state = []
+		for fluent in self.__state_fluents:
+			value = index % 2
+			index //= 2
+			state.append((fluent, value))
+		return tuple(state)
 
 
 class ActionSpace(object):
@@ -87,13 +107,19 @@ class ActionSpace(object):
 		self.__actions = actions
 		self.__action_space_size = len(self.__actions)
 
+	def __len__(self):
+		""" Return the number of actions of the action space. """
+		return self.__action_space_size
+
 	def __iter__(self):
+		""" Return an iterator over the action space. """
 		self.__action_number = 0
 		self.__action = OrderedDict([ (action, 0) for action in self.__actions ])
 		self.__action[self.__actions[-1]] = 1
 		return self
 
 	def __next__(self):
+		""" Return next action representation. """
 		if self.__action_number == self.__action_space_size:
 			raise StopIteration
 
@@ -102,3 +128,12 @@ class ActionSpace(object):
 
 		self.__action_number += 1
 		return self.__action
+
+	def __getitem__(self, index):
+		"""
+		Return the action representation with given `index`.
+
+		:param index: action index in action space
+		:type index: int
+		"""
+		return self.__actions[index]
