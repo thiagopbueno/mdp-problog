@@ -1,2 +1,2 @@
 include README.md
-include docs/_build/html/
+include docs/_build/html/*.*
