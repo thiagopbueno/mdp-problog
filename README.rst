@@ -19,14 +19,20 @@ Usage
 ::
 
     $ mdp-problog --help
-    usage: mdp-problog [-h] [-g GAMMA] [-e EPSILON] domain instance
+    usage: usage: mdp-problog {list,display,solve} [-m DOMAIN INSTANCE] [OPTIONS]
+
+    MDP-ProbLog is a framework to represent and solve MDPs by Probabilistic Logic
+    Programming.
 
     positional arguments:
-      domain                path to MDP domain file
-      instance              path to MDP instance file
+      {list,show,solve}     available commands.
 
     optional arguments:
       -h, --help            show this help message and exit
+      -m MODEL MODEL, --model MODEL MODEL
+                            list of domain and instance files
+      -x EXAMPLE, --example EXAMPLE
+                            select model from examples
       -g GAMMA, --gamma GAMMA
                             discount factor (default=0.9)
       -e EPSILON, --epsilon EPSILON
@@ -82,16 +88,16 @@ Example
 
 ::
 
-    $ mdp-problog models/sysadmin/domain.pl models/sysadmin/star2.pl --epsilon 0.01 --gamma 0.9
+    $ mdp-problog solve -x sysadmin1
 
-    Value(running(c1,0)=0, running(c2,0)=0, running(c3,0)=0) = 16.976
-    Value(running(c1,0)=1, running(c2,0)=0, running(c3,0)=0) = 19.314
-    Value(running(c1,0)=0, running(c2,0)=1, running(c3,0)=0) = 19.343
-    Value(running(c1,0)=1, running(c2,0)=1, running(c3,0)=0) = 23.173
-    Value(running(c1,0)=0, running(c2,0)=0, running(c3,0)=1) = 19.343
-    Value(running(c1,0)=1, running(c2,0)=0, running(c3,0)=1) = 23.173
-    Value(running(c1,0)=0, running(c2,0)=1, running(c3,0)=1) = 21.525
-    Value(running(c1,0)=1, running(c2,0)=1, running(c3,0)=1) = 25.752
+    Value(running(c1,0)=0, running(c2,0)=0, running(c3,0)=0) = 16.829
+    Value(running(c1,0)=1, running(c2,0)=0, running(c3,0)=0) = 19.171
+    Value(running(c1,0)=0, running(c2,0)=1, running(c3,0)=0) = 19.205
+    Value(running(c1,0)=1, running(c2,0)=1, running(c3,0)=0) = 23.028
+    Value(running(c1,0)=0, running(c2,0)=0, running(c3,0)=1) = 19.206
+    Value(running(c1,0)=1, running(c2,0)=0, running(c3,0)=1) = 23.029
+    Value(running(c1,0)=0, running(c2,0)=1, running(c3,0)=1) = 21.392
+    Value(running(c1,0)=1, running(c2,0)=1, running(c3,0)=1) = 25.607
 
     Policy(running(c1,0)=0, running(c2,0)=0, running(c3,0)=0) = reboot(c1)
     Policy(running(c1,0)=1, running(c2,0)=0, running(c3,0)=0) = reboot(c3)
@@ -102,8 +108,8 @@ Example
     Policy(running(c1,0)=0, running(c2,0)=1, running(c3,0)=1) = reboot(c1)
     Policy(running(c1,0)=1, running(c2,0)=1, running(c3,0)=1) = reboot(none)
 
-    >> Value iteration converged in 0.181sec after 59 iterations.
-    >> Average time per iteration = 0.003sec.
+    >> Value iteration converged in 0.168sec after 40 iterations.
+    >> Average time per iteration = 0.004sec.
 
 License
 -------
