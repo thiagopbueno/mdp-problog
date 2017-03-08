@@ -1,0 +1,658 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>mdpproblog package &#8212; mdpproblog v0.1.0-alpha documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     'v0.1.0-alpha',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Welcome to mdpproblog’s documentation!" href="index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to mdpproblog’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">mdpproblog v0.1.0-alpha documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="mdpproblog-package">
+<h1>mdpproblog package<a class="headerlink" href="#mdpproblog-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-mdpproblog.engine">
+<span id="mdpproblog-engine-module"></span><h2>mdpproblog.engine module<a class="headerlink" href="#module-mdpproblog.engine" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="mdpproblog.engine.Engine">
+<em class="property">class </em><code class="descclassname">mdpproblog.engine.</code><code class="descname">Engine</code><span class="sig-paren">(</span><em>program</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mdpproblog/engine.html#Engine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mdpproblog.engine.Engine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Adapter class to Problog grounding and query engine.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>program</strong> (<em>str</em>) &#8211; a valid MDP-ProbLog program</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="mdpproblog.engine.Engine.add_annotated_disjunction">
+<code class="descname">add_annotated_disjunction</code><span class="sig-paren">(</span><em>facts</em>, <em>probabilities</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mdpproblog/engine.html#Engine.add_annotated_disjunction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mdpproblog.engine.Engine.add_annotated_disjunction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new annotated disjunction to the program database from
+a list of <cite>facts</cite> and its <cite>probabilities</cite>.
+Return a list of choice nodes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>facts</strong> (<em>list of problog.logic.Term</em>) &#8211; list of probabilistic facts</li>
+<li><strong>probabilities</strong> (<em>list of float in</em><em> [</em><em>0.0</em><em>, </em><em>1.0</em><em>]</em><em></em>) &#8211; list of valid individual probabilities
+such that the total probability is less
+than or equal to 1.0</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list of int</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mdpproblog.engine.Engine.add_assignment">
+<code class="descname">add_assignment</code><span class="sig-paren">(</span><em>term</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mdpproblog/engine.html#Engine.add_assignment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mdpproblog.engine.Engine.add_assignment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new utility assignment of <cite>value</cite> to <cite>term</cite> in the program database.
+Return the corresponding node number.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>term</strong> (<em>problog.logic.Term</em>) &#8211; a predicate</li>
+<li><strong>value</strong> (<em>float</em>) &#8211; a numeric value</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">int</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mdpproblog.engine.Engine.add_fact">
+<code class="descname">add_fact</code><span class="sig-paren">(</span><em>term</em>, <em>probability=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mdpproblog/engine.html#Engine.add_fact"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mdpproblog.engine.Engine.add_fact" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new <cite>term</cite> with a given <cite>probability</cite> to the program database.
+Return the corresponding node number.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>term</strong> (<em>problog.logic.Term</em>) &#8211; a predicate</li>
+<li><strong>probability</strong> (<em>float</em>) &#8211; a number in [0,1]</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">int</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mdpproblog.engine.Engine.add_rule">
+<code class="descname">add_rule</code><span class="sig-paren">(</span><em>head</em>, <em>body</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mdpproblog/engine.html#Engine.add_rule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mdpproblog.engine.Engine.add_rule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new rule defined by a <cite>head</cite> and <cite>body</cite> arguments
+to the program database. Return the corresponding node number.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>head</strong> (<em>problog.logic.Term</em>) &#8211; a predicate</li>
+<li><strong>body</strong> (<em>list of problog.logic.Term</em><em> or </em><em>problog.logic.Not</em>) &#8211; a list of literals</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">int</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mdpproblog.engine.Engine.assignments">
+<code class="descname">assignments</code><span class="sig-paren">(</span><em>assignment_type</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mdpproblog/engine.html#Engine.assignments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mdpproblog.engine.Engine.assignments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dictionary of assignments of type <cite>assignment_type</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>assignment_type</strong> (<em>str</em>) &#8211; assignment type.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">dict of (problog.logic.Term, problog.logic.Constant) items.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mdpproblog.engine.Engine.compile">
+<code class="descname">compile</code><span class="sig-paren">(</span><em>terms=[]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mdpproblog/engine.html#Engine.compile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mdpproblog.engine.Engine.compile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create compiled knowledge database from ground program.
+Return mapping of <cite>terms</cite> to nodes in the compiled knowledge database.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>terms</strong> (<em>list of problog.logic.Term</em>) &#8211; list of predicates</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">dict of (problog.logic.Term, int)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mdpproblog.engine.Engine.declarations">
+<code class="descname">declarations</code><span class="sig-paren">(</span><em>declaration_type</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mdpproblog/engine.html#Engine.declarations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mdpproblog.engine.Engine.declarations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of all terms of type <cite>declaration_type</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>declaration_type</strong> (<em>str</em>) &#8211; declaration type.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">list of problog.logic.Term</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mdpproblog.engine.Engine.evaluate">
+<code class="descname">evaluate</code><span class="sig-paren">(</span><em>queries</em>, <em>evidence</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mdpproblog/engine.html#Engine.evaluate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mdpproblog.engine.Engine.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute probabilities of <cite>queries</cite> given <cite>evidence</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>queries</strong> (<em>dict of</em><em> (</em><em>problog.logic.Term</em><em>, </em><em>int</em><em>)</em><em></em>) &#8211; mapping of predicates to nodes</li>
+<li><strong>evidence</strong> (<em>dictionary of</em><em> (</em><em>problog.logic.Term</em><em>, </em><em>{0</em><em>, </em><em>1}</em><em>)</em><em></em>) &#8211; mapping of predicate and evidence weight</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list of (problog.logic.Term, [0.0, 1.0])</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mdpproblog.engine.Engine.get_annotated_disjunction">
+<code class="descname">get_annotated_disjunction</code><span class="sig-paren">(</span><em>nodes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mdpproblog/engine.html#Engine.get_annotated_disjunction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mdpproblog.engine.Engine.get_annotated_disjunction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the list of choice nodes in the table of instructions
+corresponding to <cite>nodes</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>nodes</strong> (<em>list of int</em>) &#8211; list of node identifiers</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">list of problog.engine.choice</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mdpproblog.engine.Engine.get_assignment">
+<code class="descname">get_assignment</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mdpproblog/engine.html#Engine.get_assignment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mdpproblog.engine.Engine.get_assignment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the assignment in the table of instructions corresponding to <cite>node</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>node</strong> (<em>int</em>) &#8211; identifier of assignment in table of instructions</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">pair of (problog.logic.Term, problog.logic.Constant)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mdpproblog.engine.Engine.get_fact">
+<code class="descname">get_fact</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mdpproblog/engine.html#Engine.get_fact"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mdpproblog.engine.Engine.get_fact" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the fact in the table of instructions corresponding to <cite>node</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>node</strong> (<em>int</em>) &#8211; identifier of fact in table of instructions</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">problog.engine.fact</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mdpproblog.engine.Engine.get_instructions_table">
+<code class="descname">get_instructions_table</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mdpproblog/engine.html#Engine.get_instructions_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mdpproblog.engine.Engine.get_instructions_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the table of instructions separated by instruction type
+as described in problog.engine.ClauseDB.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict of (str, list of (node,namedtuple))</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mdpproblog.engine.Engine.get_rule">
+<code class="descname">get_rule</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mdpproblog/engine.html#Engine.get_rule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mdpproblog.engine.Engine.get_rule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the rule in the table of instructions corresponding to <cite>node</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>node</strong> (<em>int</em>) &#8211; identifier of rule in table of instructions</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">problog.engine.clause</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mdpproblog.engine.Engine.relevant_ground">
+<code class="descname">relevant_ground</code><span class="sig-paren">(</span><em>queries</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mdpproblog/engine.html#Engine.relevant_ground"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mdpproblog.engine.Engine.relevant_ground" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create ground program with respect to <cite>queries</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>queries</strong> (<em>list of problog.logic.Term</em>) &#8211; list of predicates</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-mdpproblog.fluent">
+<span id="mdpproblog-fluent-module"></span><h2>mdpproblog.fluent module<a class="headerlink" href="#module-mdpproblog.fluent" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="mdpproblog.fluent.ActionSpace">
+<em class="property">class </em><code class="descclassname">mdpproblog.fluent.</code><code class="descname">ActionSpace</code><span class="sig-paren">(</span><em>actions</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mdpproblog/fluent.html#ActionSpace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mdpproblog.fluent.ActionSpace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Iterator class for looping over vector representations of
+<cite>actions</cite> in a factored MDP. Each action is implemented by
+an OrderedDict of (problog.logic.Term, 0/1).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>actions</strong> (<em>list of problog.logic.Term</em>) &#8211; predicates listing possible actions</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="mdpproblog.fluent.Fluent">
+<em class="property">class </em><code class="descclassname">mdpproblog.fluent.</code><code class="descname">Fluent</code><a class="reference internal" href="_modules/mdpproblog/fluent.html#Fluent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mdpproblog.fluent.Fluent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Factory class for building fluent terms. A fluent term is a
+problog.logic.Term with a problog.logic.Constant as last argument
+representing its timestep.</p>
+<dl class="classmethod">
+<dt id="mdpproblog.fluent.Fluent.create_fluent">
+<em class="property">classmethod </em><code class="descname">create_fluent</code><span class="sig-paren">(</span><em>term</em>, <em>timestep</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mdpproblog/fluent.html#Fluent.create_fluent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mdpproblog.fluent.Fluent.create_fluent" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#8221;
+Return a new fluent made from <cite>term</cite> with given <cite>timestep</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>term</strong> (<em>problog.logic.Term</em>) &#8211; any problog term</li>
+<li><strong>timestep</strong> (<em>int</em>) &#8211; timestep numeric value</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">problog.logic.Term</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mdpproblog.fluent.StateSpace">
+<em class="property">class </em><code class="descclassname">mdpproblog.fluent.</code><code class="descname">StateSpace</code><span class="sig-paren">(</span><em>state_fluents</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mdpproblog/fluent.html#StateSpace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mdpproblog.fluent.StateSpace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Iterator class for looping over vector representations of
+states in a factored MDP defined by <cite>state_fluents</cite>. Each state
+is implemented by an OrderedDict of (problog.logic.Term, 0/1).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>state_fluents</strong> (<em>list of problog.logic.Term</em>) &#8211; predicates defining a state in a given timestep</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-mdpproblog.mdp">
+<span id="mdpproblog-mdp-module"></span><h2>mdpproblog.mdp module<a class="headerlink" href="#module-mdpproblog.mdp" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="mdpproblog.mdp.MDP">
+<em class="property">class </em><code class="descclassname">mdpproblog.mdp.</code><code class="descname">MDP</code><span class="sig-paren">(</span><em>model</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mdpproblog/mdp.html#MDP"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mdpproblog.mdp.MDP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Representation of an MDP and its components. Implemented as a bridge
+class to the ProbLog programs specifying the MDP domain and problems.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>model</strong> (<em>str</em>) &#8211; a valid MDP-ProbLog program</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="mdpproblog.mdp.MDP.actions">
+<code class="descname">actions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mdpproblog/mdp.html#MDP.actions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mdpproblog.mdp.MDP.actions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an ordered list of action objects.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list of action objects sorted by string representation</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mdpproblog.mdp.MDP.current_state_fluents">
+<code class="descname">current_state_fluents</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mdpproblog/mdp.html#MDP.current_state_fluents"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mdpproblog.mdp.MDP.current_state_fluents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the ordered list of current state fluent objects.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list of current state fluent objects sorted by string representation</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mdpproblog.mdp.MDP.next_state_fluents">
+<code class="descname">next_state_fluents</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mdpproblog/mdp.html#MDP.next_state_fluents"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mdpproblog.mdp.MDP.next_state_fluents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the ordered list of next state fluent objects.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list of next state fluent objects sorted by string representation</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mdpproblog.mdp.MDP.reward">
+<code class="descname">reward</code><span class="sig-paren">(</span><em>state</em>, <em>action</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mdpproblog/mdp.html#MDP.reward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mdpproblog.mdp.MDP.reward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the immediate reward value of the transition
+induced by applying <cite>action</cite> to the given <cite>state</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>state</strong> (<em>list of 0/1 according to state fluents order</em>) &#8211; state vector representation of current state fluents</li>
+<li><strong>action</strong> (<em>one-hot vector encoding of action as a list of 0/1</em>) &#8211; action vector representation</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mdpproblog.mdp.MDP.reward_model">
+<code class="descname">reward_model</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mdpproblog/mdp.html#MDP.reward_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mdpproblog.mdp.MDP.reward_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the reward model of all valid transitions.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict of ((state,action), float)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mdpproblog.mdp.MDP.state_fluents">
+<code class="descname">state_fluents</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mdpproblog/mdp.html#MDP.state_fluents"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mdpproblog.mdp.MDP.state_fluents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an ordered list of state fluent objects.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list of state fluent objects sorted by string representation</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mdpproblog.mdp.MDP.transition">
+<code class="descname">transition</code><span class="sig-paren">(</span><em>state</em>, <em>action</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mdpproblog/mdp.html#MDP.transition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mdpproblog.mdp.MDP.transition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the probabilities of next state fluents given current
+<cite>state</cite> and <cite>action</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>state</strong> (<em>list of 0/1 according to state fluents order</em>) &#8211; state vector representation of current state fluents</li>
+<li><strong>action</strong> (<em>one-hot vector encoding of action as a list of 0/1</em>) &#8211; action vector representation</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list of pairs (problog.logic.Term, float)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mdpproblog.mdp.MDP.transition_model">
+<code class="descname">transition_model</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mdpproblog/mdp.html#MDP.transition_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mdpproblog.mdp.MDP.transition_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the transition model of all valid transitions.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict of ((state,action), list of probabilities)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-mdpproblog.value_iteration">
+<span id="mdpproblog-value-iteration-module"></span><h2>mdpproblog.value_iteration module<a class="headerlink" href="#module-mdpproblog.value_iteration" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="mdpproblog.value_iteration.ValueIteration">
+<em class="property">class </em><code class="descclassname">mdpproblog.value_iteration.</code><code class="descname">ValueIteration</code><span class="sig-paren">(</span><em>mdp</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mdpproblog/value_iteration.html#ValueIteration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mdpproblog.value_iteration.ValueIteration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Implementation of the enumerative Value Iteration algorithm.
+It performs successive, synchronous Bellman backups until
+convergence is achieved for the given error epsilon for the
+infinite-horizon MDP with discount factor gamma.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>mdp</strong> (<em>mdpproblog.MDP</em>) &#8211; MDP representation</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="mdpproblog.value_iteration.ValueIteration.run">
+<code class="descname">run</code><span class="sig-paren">(</span><em>gamma=0.9</em>, <em>epsilon=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mdpproblog/value_iteration.html#ValueIteration.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mdpproblog.value_iteration.ValueIteration.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute value iteration until convergence.
+Return optimal value function, greedy policy and number
+of iterations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>gamma</strong> (<em>float</em>) &#8211; discount factor</li>
+<li><strong>epsilon</strong> (<em>float</em>) &#8211; maximum error</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">triple (dict(state, value), dict(policy, action), float)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-mdpproblog">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-mdpproblog" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">mdpproblog package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-mdpproblog.engine">mdpproblog.engine module</a></li>
+<li><a class="reference internal" href="#module-mdpproblog.fluent">mdpproblog.fluent module</a></li>
+<li><a class="reference internal" href="#module-mdpproblog.mdp">mdpproblog.mdp module</a></li>
+<li><a class="reference internal" href="#module-mdpproblog.value_iteration">mdpproblog.value_iteration module</a></li>
+<li><a class="reference internal" href="#module-mdpproblog">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to mdpproblog&#8217;s documentation!</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/mdpproblog.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to mdpproblog’s documentation!"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">mdpproblog v0.1.0-alpha documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Author.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+    </div>
+  </body>
+</html>
