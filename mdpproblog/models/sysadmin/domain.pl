@@ -1,4 +1,3 @@
-
 % network topology properties
 accTotal([],A,A).
 accTotal([_|T],A,X) :- B is A+1, accTotal(T,B,X).
