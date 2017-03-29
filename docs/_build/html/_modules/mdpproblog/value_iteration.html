@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>mdpproblog.value_iteration &#8212; mdpproblog v0.2.0-alpha documentation</title>
+    <title>mdpproblog.value_iteration &#8212; mdpproblog v0.3.0-alpha documentation</title>
     
     <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     'v0.2.0-alpha',
+        VERSION:     'v0.3.0-alpha',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -37,7 +37,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">mdpproblog v0.2.0-alpha documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">mdpproblog v0.3.0-alpha documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
       </ul>
     </div>  
@@ -67,101 +67,92 @@
 
 <span class="kn">from</span> <span class="nn">mdpproblog.fluent</span> <span class="k">import</span> <span class="n">StateSpace</span><span class="p">,</span> <span class="n">ActionSpace</span>
 
+
 <div class="viewcode-block" id="ValueIteration"><a class="viewcode-back" href="../../mdpproblog.html#mdpproblog.value_iteration.ValueIteration">[docs]</a><span class="k">class</span> <span class="nc">ValueIteration</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-	<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">	Implementation of the enumerative Value Iteration algorithm.</span>
-<span class="sd">	It performs successive, synchronous Bellman backups until</span>
-<span class="sd">	convergence is achieved for the given error epsilon for the</span>
-<span class="sd">	infinite-horizon MDP with discount factor gamma.</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Implementation of the enumerative Value Iteration algorithm.</span>
+<span class="sd">    It performs successive, synchronous Bellman backups until</span>
+<span class="sd">    convergence is achieved for the given error epsilon for the</span>
+<span class="sd">    infinite-horizon MDP with discount factor gamma.</span>
 
-<span class="sd">	:param mdp: MDP representation</span>
-<span class="sd">	:type mdp: mdpproblog.MDP</span>
-<span class="sd">	&quot;&quot;&quot;</span>
+<span class="sd">    :param mdp: MDP representation</span>
+<span class="sd">    :type mdp: mdpproblog.MDP</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mdp</span><span class="p">):</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">_mdp</span> <span class="o">=</span> <span class="n">mdp</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">__transition_cache</span> <span class="o">=</span> <span class="p">{}</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">__reward_cache</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mdp</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mdp</span> <span class="o">=</span> <span class="n">mdp</span>
 
-<div class="viewcode-block" id="ValueIteration.run"><a class="viewcode-back" href="../../mdpproblog.html#mdpproblog.value_iteration.ValueIteration.run">[docs]</a>	<span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">		Execute value iteration until convergence.</span>
-<span class="sd">		Return optimal value function, greedy policy and number</span>
-<span class="sd">		of iterations.</span>
+<div class="viewcode-block" id="ValueIteration.run"><a class="viewcode-back" href="../../mdpproblog.html#mdpproblog.value_iteration.ValueIteration.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Execute value iteration until convergence.</span>
+<span class="sd">        Return optimal value function, greedy policy and number</span>
+<span class="sd">        of iterations.</span>
 
-<span class="sd">		:param gamma: discount factor</span>
-<span class="sd">		:type gamma: float</span>
-<span class="sd">		:param epsilon: maximum error</span>
-<span class="sd">		:type epsilon: float</span>
-<span class="sd">		:rtype: triple (dict(state, value), dict(policy, action), float)</span>
-<span class="sd">		&quot;&quot;&quot;</span>
-		<span class="n">V</span> <span class="o">=</span> <span class="p">{}</span>
-		<span class="n">policy</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="sd">        :param gamma: discount factor</span>
+<span class="sd">        :type gamma: float</span>
+<span class="sd">        :param epsilon: maximum error</span>
+<span class="sd">        :type epsilon: float</span>
+<span class="sd">        :rtype: triple (dict(state, value), dict(policy, action), float)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">V</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">policy</span> <span class="o">=</span> <span class="p">{}</span>
 
-		<span class="n">actions</span> <span class="o">=</span> <span class="n">ActionSpace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mdp</span><span class="o">.</span><span class="n">actions</span><span class="p">())</span>
-		<span class="n">states</span>  <span class="o">=</span> <span class="n">StateSpace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mdp</span><span class="o">.</span><span class="n">current_state_fluents</span><span class="p">())</span>
+        <span class="n">actions</span> <span class="o">=</span> <span class="n">ActionSpace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mdp</span><span class="o">.</span><span class="n">actions</span><span class="p">())</span>
+        <span class="n">states</span>  <span class="o">=</span> <span class="n">StateSpace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mdp</span><span class="o">.</span><span class="n">current_state_fluents</span><span class="p">())</span>
 
-		<span class="n">iteration</span> <span class="o">=</span> <span class="mi">0</span>
-		<span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-			<span class="n">iteration</span> <span class="o">+=</span> <span class="mi">1</span>
-			<span class="n">max_residual</span> <span class="o">=</span> <span class="o">-</span><span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span>
-			<span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">states</span><span class="p">):</span>
-				<span class="n">max_value</span> <span class="o">=</span> <span class="o">-</span><span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span>
-				<span class="n">greedy_action</span> <span class="o">=</span> <span class="kc">None</span>
-				<span class="k">for</span> <span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="n">action</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">actions</span><span class="p">):</span>
-					<span class="n">transition</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__transition_cache</span><span class="o">.</span><span class="n">get</span><span class="p">((</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
-					<span class="k">if</span> <span class="n">transition</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-						<span class="n">transition</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mdp</span><span class="o">.</span><span class="n">transition</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">)</span>
-						<span class="bp">self</span><span class="o">.</span><span class="n">__transition_cache</span><span class="p">[(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">)]</span> <span class="o">=</span> <span class="n">transition</span>
+        <span class="n">iteration</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">iteration</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">max_residual</span> <span class="o">=</span> <span class="o">-</span><span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">states</span><span class="p">):</span>
+                <span class="n">max_value</span> <span class="o">=</span> <span class="o">-</span><span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span>
+                <span class="n">greedy_action</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">for</span> <span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="n">action</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">actions</span><span class="p">):</span>
+                    <span class="n">transition</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mdp</span><span class="o">.</span><span class="n">transition</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">))</span>
+                    <span class="n">reward</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mdp</span><span class="o">.</span><span class="n">reward</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">))</span>
+                    <span class="n">Q</span> <span class="o">=</span> <span class="n">reward</span> <span class="o">+</span> <span class="n">gamma</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">__expected_value</span><span class="p">(</span><span class="n">transition</span><span class="p">,</span> <span class="n">V</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">Q</span> <span class="o">&gt;=</span> <span class="n">max_value</span><span class="p">:</span>
+                        <span class="n">max_value</span> <span class="o">=</span> <span class="n">Q</span>
+                        <span class="n">greedy_action</span> <span class="o">=</span> <span class="n">actions</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
 
-					<span class="n">reward</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__reward_cache</span><span class="o">.</span><span class="n">get</span><span class="p">((</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
-					<span class="k">if</span> <span class="n">reward</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-						<span class="n">reward</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mdp</span><span class="o">.</span><span class="n">reward</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">)</span>
-						<span class="bp">self</span><span class="o">.</span><span class="n">__reward_cache</span><span class="p">[(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">)]</span> <span class="o">=</span> <span class="n">reward</span>
+                <span class="n">residual</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">V</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="n">max_value</span><span class="p">)</span>
+                <span class="n">max_residual</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">max_residual</span><span class="p">,</span> <span class="n">residual</span><span class="p">)</span>
+                <span class="n">V</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_value</span>
+                <span class="n">policy</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">greedy_action</span>
 
-					<span class="n">Q</span> <span class="o">=</span> <span class="n">reward</span> <span class="o">+</span> <span class="n">gamma</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">__expected_value</span><span class="p">(</span><span class="n">transition</span><span class="p">,</span> <span class="n">V</span><span class="p">)</span>
-					<span class="k">if</span> <span class="n">Q</span> <span class="o">&gt;=</span> <span class="n">max_value</span><span class="p">:</span>
-						<span class="n">max_value</span> <span class="o">=</span> <span class="n">Q</span>
-						<span class="n">greedy_action</span> <span class="o">=</span> <span class="n">actions</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">max_residual</span> <span class="o">&lt;=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">epsilon</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">gamma</span><span class="p">)</span> <span class="o">/</span> <span class="n">gamma</span><span class="p">:</span>
+                <span class="k">break</span>
 
-				<span class="n">residual</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">V</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="n">max_value</span><span class="p">)</span>
-				<span class="n">max_residual</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">max_residual</span><span class="p">,</span> <span class="n">residual</span><span class="p">)</span>
-				<span class="n">V</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_value</span>
-				<span class="n">policy</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">greedy_action</span>
+        <span class="n">V</span> <span class="o">=</span> <span class="p">{</span> <span class="n">states</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">V</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="p">}</span>
+        <span class="n">policy</span> <span class="o">=</span> <span class="p">{</span> <span class="n">states</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span> <span class="n">action</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">action</span> <span class="ow">in</span> <span class="n">policy</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="p">}</span>
 
-			<span class="k">if</span> <span class="n">max_residual</span> <span class="o">&lt;=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">epsilon</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">gamma</span><span class="p">)</span> <span class="o">/</span> <span class="n">gamma</span><span class="p">:</span>
-				<span class="k">break</span>
+        <span class="k">return</span> <span class="n">V</span><span class="p">,</span> <span class="n">policy</span><span class="p">,</span> <span class="n">iteration</span></div>
 
-		<span class="n">V</span> <span class="o">=</span> <span class="p">{</span> <span class="n">states</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">V</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="p">}</span>
-		<span class="n">policy</span> <span class="o">=</span> <span class="p">{</span> <span class="n">states</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span> <span class="n">action</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">action</span> <span class="ow">in</span> <span class="n">policy</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="p">}</span>
+    <span class="k">def</span> <span class="nf">__expected_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transition</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">joint</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the expected future value for the given `transition` with</span>
+<span class="sd">        state value given by `V`.</span>
 
-		<span class="k">return</span> <span class="n">V</span><span class="p">,</span> <span class="n">policy</span><span class="p">,</span> <span class="n">iteration</span></div>
+<span class="sd">        :param transition: transition probabilities</span>
+<span class="sd">        :type transition: list of pairs (fluent, float)</span>
+<span class="sd">        :param V: current value function</span>
+<span class="sd">        :type V: dict(int,float)</span>
+<span class="sd">        :rtype: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">transition</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">joint</span> <span class="o">*</span> <span class="n">V</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
 
-	<span class="k">def</span> <span class="nf">__expected_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transition</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">joint</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">		Compute the expected future value for the given `transition` with</span>
-<span class="sd">		state value given by `V`.</span>
-
-<span class="sd">		:param transition: transition probabilities</span>
-<span class="sd">		:type transition: list of pairs (fluent, float)</span>
-<span class="sd">		:param V: current value function</span>
-<span class="sd">		:type V: dict(int,float)</span>
-<span class="sd">		:rtype: float</span>
-<span class="sd">		&quot;&quot;&quot;</span>
-		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">transition</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-			<span class="k">return</span> <span class="n">joint</span> <span class="o">*</span> <span class="n">V</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
-
-		<span class="n">probability</span> <span class="o">=</span> <span class="n">transition</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
-		<span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">probability</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mf">1e-06</span><span class="p">:</span>
-			<span class="n">ret1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__expected_value</span><span class="p">(</span><span class="n">transition</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">V</span><span class="p">,</span> <span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">2</span><span class="o">**</span><span class="n">k</span><span class="p">,</span> <span class="n">joint</span><span class="p">)</span>
-			<span class="n">ret2</span> <span class="o">=</span> <span class="mf">0.0</span>
-		<span class="k">elif</span> <span class="nb">abs</span><span class="p">(</span><span class="n">probability</span> <span class="o">-</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">&lt;=</span><span class="mf">1e-06</span><span class="p">:</span>
-			<span class="n">ret1</span> <span class="o">=</span> <span class="mf">0.0</span>
-			<span class="n">ret2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__expected_value</span><span class="p">(</span><span class="n">transition</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">V</span><span class="p">,</span> <span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">joint</span><span class="p">)</span>
-		<span class="k">else</span><span class="p">:</span>
-			<span class="n">ret1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__expected_value</span><span class="p">(</span><span class="n">transition</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">V</span><span class="p">,</span> <span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">2</span><span class="o">**</span><span class="n">k</span><span class="p">,</span> <span class="n">joint</span> <span class="o">*</span> <span class="n">probability</span><span class="p">)</span>
-			<span class="n">ret2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__expected_value</span><span class="p">(</span><span class="n">transition</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">V</span><span class="p">,</span> <span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">joint</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">probability</span><span class="p">))</span>
-		<span class="k">return</span> <span class="n">ret1</span> <span class="o">+</span> <span class="n">ret2</span></div>
+        <span class="n">probability</span> <span class="o">=</span> <span class="n">transition</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">probability</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mf">1e-06</span><span class="p">:</span>
+            <span class="n">ret1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__expected_value</span><span class="p">(</span><span class="n">transition</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">V</span><span class="p">,</span> <span class="n">k</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">2</span><span class="o">**</span><span class="n">k</span><span class="p">,</span> <span class="n">joint</span><span class="p">)</span>
+            <span class="n">ret2</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">elif</span> <span class="nb">abs</span><span class="p">(</span><span class="n">probability</span> <span class="o">-</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mf">1e-06</span><span class="p">:</span>
+            <span class="n">ret1</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="n">ret2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__expected_value</span><span class="p">(</span><span class="n">transition</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">V</span><span class="p">,</span> <span class="n">k</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">joint</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ret1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__expected_value</span><span class="p">(</span><span class="n">transition</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">V</span><span class="p">,</span> <span class="n">k</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">2</span><span class="o">**</span><span class="n">k</span><span class="p">,</span> <span class="n">joint</span> <span class="o">*</span> <span class="n">probability</span><span class="p">)</span>
+            <span class="n">ret2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__expected_value</span><span class="p">(</span><span class="n">transition</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">V</span><span class="p">,</span> <span class="n">k</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">joint</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">probability</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">ret1</span> <span class="o">+</span> <span class="n">ret2</span></div>
 </pre></div>
 
           </div>
@@ -192,7 +183,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">mdpproblog v0.2.0-alpha documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">mdpproblog v0.3.0-alpha documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
       </ul>
     </div>

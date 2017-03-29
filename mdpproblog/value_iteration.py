@@ -15,7 +15,7 @@
 
 import sys
 
-from fluent import StateSpace, ActionSpace
+from mdpproblog.fluent import StateSpace, ActionSpace
 
 
 class ValueIteration(object):
