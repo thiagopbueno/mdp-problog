@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>mdpproblog package &#8212; mdpproblog v0.2.0-alpha documentation</title>
+    <title>mdpproblog package &#8212; mdpproblog v0.3.0-alpha documentation</title>
     
     <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     'v0.2.0-alpha',
+        VERSION:     'v0.3.0-alpha',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -41,7 +41,7 @@
         <li class="right" >
           <a href="index.html" title="Welcome to mdpproblog’s documentation!"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">mdpproblog v0.2.0-alpha documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">mdpproblog v0.3.0-alpha documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -345,6 +345,22 @@ an OrderedDict of (problog.logic.Term, 0/1).</p>
 </tr>
 </tbody>
 </table>
+<dl class="classmethod">
+<dt id="mdpproblog.fluent.ActionSpace.index">
+<em class="property">classmethod </em><code class="descname">index</code><span class="sig-paren">(</span><em>action</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mdpproblog/fluent.html#ActionSpace.index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mdpproblog.fluent.ActionSpace.index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return action index in the action space.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>action</strong> (<em>OrderedDict</em>) &#8211; action representation</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -393,6 +409,38 @@ is implemented by an OrderedDict of (problog.logic.Term, 0/1).</p>
 </tr>
 </tbody>
 </table>
+<dl class="classmethod">
+<dt id="mdpproblog.fluent.StateSpace.index">
+<em class="property">classmethod </em><code class="descname">index</code><span class="sig-paren">(</span><em>state</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mdpproblog/fluent.html#StateSpace.index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mdpproblog.fluent.StateSpace.index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the <cite>state</cite> index in the state space.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>state</strong> (<em>OrderedDict</em>) &#8211; state representation</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="mdpproblog.fluent.StateSpace.state">
+<em class="property">classmethod </em><code class="descname">state</code><span class="sig-paren">(</span><em>valuation</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mdpproblog/fluent.html#StateSpace.state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mdpproblog.fluent.StateSpace.state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the state representation of a <cite>valuation</cite> of fluents.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>valuation</strong> (<em>list of pairs</em><em> (</em><a class="reference internal" href="#mdpproblog.fluent.Fluent" title="mdpproblog.fluent.Fluent"><em>Fluent</em></a><em>, </em><em>bool</em><em>)</em><em></em>) &#8211; mapping from fluent to boolean value</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">OrderedDict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </dd></dl>
 
 </div>
@@ -456,9 +504,10 @@ class to the ProbLog programs specifying the MDP domain and problems.</p>
 
 <dl class="method">
 <dt id="mdpproblog.mdp.MDP.reward">
-<code class="descname">reward</code><span class="sig-paren">(</span><em>state</em>, <em>action</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mdpproblog/mdp.html#MDP.reward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mdpproblog.mdp.MDP.reward" title="Permalink to this definition">¶</a></dt>
+<code class="descname">reward</code><span class="sig-paren">(</span><em>state</em>, <em>action</em>, <em>cache=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mdpproblog/mdp.html#MDP.reward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mdpproblog.mdp.MDP.reward" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the immediate reward value of the transition
-induced by applying <cite>action</cite> to the given <cite>state</cite>.</p>
+induced by applying <cite>action</cite> to the given <cite>state</cite>.
+Cache results optionally if parameter <cite>cache</cite> is given.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -466,6 +515,7 @@ induced by applying <cite>action</cite> to the given <cite>state</cite>.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>state</strong> (<em>list of 0/1 according to state fluents order</em>) &#8211; state vector representation of current state fluents</li>
 <li><strong>action</strong> (<em>one-hot vector encoding of action as a list of 0/1</em>) &#8211; action vector representation</li>
+<li><strong>cache</strong> (<em>immutable</em><em>, </em><em>hashable object</em>) &#8211; key to cache results</li>
 </ul>
 </td>
 </tr>
@@ -484,7 +534,7 @@ induced by applying <cite>action</cite> to the given <cite>state</cite>.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict of ((state,action), float)</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict of ((<a class="reference internal" href="#mdpproblog.fluent.StateSpace.state" title="mdpproblog.fluent.StateSpace.state">state</a>,action), float)</td>
 </tr>
 </tbody>
 </table>
@@ -506,9 +556,10 @@ induced by applying <cite>action</cite> to the given <cite>state</cite>.</p>
 
 <dl class="method">
 <dt id="mdpproblog.mdp.MDP.transition">
-<code class="descname">transition</code><span class="sig-paren">(</span><em>state</em>, <em>action</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mdpproblog/mdp.html#MDP.transition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mdpproblog.mdp.MDP.transition" title="Permalink to this definition">¶</a></dt>
+<code class="descname">transition</code><span class="sig-paren">(</span><em>state</em>, <em>action</em>, <em>cache=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mdpproblog/mdp.html#MDP.transition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mdpproblog.mdp.MDP.transition" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the probabilities of next state fluents given current
-<cite>state</cite> and <cite>action</cite>.</p>
+<cite>state</cite> and <cite>action</cite>. Cache results optionally if parameter
+<cite>cache</cite> is given.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -516,6 +567,7 @@ induced by applying <cite>action</cite> to the given <cite>state</cite>.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>state</strong> (<em>list of 0/1 according to state fluents order</em>) &#8211; state vector representation of current state fluents</li>
 <li><strong>action</strong> (<em>one-hot vector encoding of action as a list of 0/1</em>) &#8211; action vector representation</li>
+<li><strong>cache</strong> (<em>immutable</em><em>, </em><em>hashable object</em>) &#8211; key to cache results</li>
 </ul>
 </td>
 </tr>
@@ -534,7 +586,84 @@ induced by applying <cite>action</cite> to the given <cite>state</cite>.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict of ((state,action), list of probabilities)</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict of ((<a class="reference internal" href="#mdpproblog.fluent.StateSpace.state" title="mdpproblog.fluent.StateSpace.state">state</a>,action), list of probabilities)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-mdpproblog.simulator">
+<span id="mdpproblog-simulator-module"></span><h2>mdpproblog.simulator module<a class="headerlink" href="#module-mdpproblog.simulator" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="mdpproblog.simulator.Simulator">
+<em class="property">class </em><code class="descclassname">mdpproblog.simulator.</code><code class="descname">Simulator</code><span class="sig-paren">(</span><em>mdp</em>, <em>policy</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mdpproblog/simulator.html#Simulator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mdpproblog.simulator.Simulator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Simulator class for MDPs. Given an <cite>mdp</cite> and a <cite>policy</cite>,
+it generates histories and its corresponding
+expected cummulative discounted rewards.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>mdp</strong> (<em>mdpproblog.mdp.MDP object</em>) &#8211; an MDP formulation</li>
+<li><strong>policy</strong> (<em>dict of</em><em> (</em><em>tuple</em><em>, </em><em>str</em><em>)</em><em></em>) &#8211; mapping from state to action</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="mdpproblog.simulator.Simulator.run">
+<code class="descname">run</code><span class="sig-paren">(</span><em>trials</em>, <em>horizon</em>, <em>start_state</em>, <em>gamma=0.9</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mdpproblog/simulator.html#Simulator.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mdpproblog.simulator.Simulator.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulate a number of <cite>trials</cite> of given <cite>horizon</cite> from <cite>start_state</cite>
+following its policy. Compute the discounted expected reward using
+<cite>gamma</cite> as discount factor. Return average reward over all trials,
+a list of rewards received at each trial and list of sampled states
+for each trial.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>trials</strong> (<em>int</em>) &#8211; number of trials</li>
+<li><strong>horizon</strong> (<em>int</em>) &#8211; number of timesteps</li>
+<li><strong>start_state</strong> &#8211; state from which the simulation starts</li>
+<li><strong>gamma</strong> (<em>float</em>) &#8211; discount factor</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">tuple (float, list of list of floats, list of list of states)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mdpproblog.simulator.Simulator.run_trial">
+<code class="descname">run_trial</code><span class="sig-paren">(</span><em>horizon</em>, <em>start_state</em>, <em>gamma=0.9</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mdpproblog/simulator.html#Simulator.run_trial"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mdpproblog.simulator.Simulator.run_trial" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulate a single trial of given <cite>horizon</cite> from <cite>start_state</cite>
+following its policy. Compute the discounted expected reward using
+<cite>gamma</cite> as discount factor. Return total discounted reward over all
+steps of the horizon and a list of sampled states in the trial.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>trials</strong> (<em>int</em>) &#8211; number of trials</li>
+<li><strong>horizon</strong> (<em>int</em>) &#8211; number of timesteps</li>
+<li><strong>start_state</strong> &#8211; state from which the simulation starts</li>
+<li><strong>gamma</strong> (<em>float</em>) &#8211; discount factor</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">tuple (float, list of states)</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -577,7 +706,7 @@ of iterations.</p>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">triple (dict(state, value), dict(policy, action), float)</p>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">triple (dict(<a class="reference internal" href="#mdpproblog.fluent.StateSpace.state" title="mdpproblog.fluent.StateSpace.state">state</a>, value), dict(policy, action), float)</p>
 </td>
 </tr>
 </tbody>
@@ -605,6 +734,7 @@ of iterations.</p>
 <li><a class="reference internal" href="#module-mdpproblog.engine">mdpproblog.engine module</a></li>
 <li><a class="reference internal" href="#module-mdpproblog.fluent">mdpproblog.fluent module</a></li>
 <li><a class="reference internal" href="#module-mdpproblog.mdp">mdpproblog.mdp module</a></li>
+<li><a class="reference internal" href="#module-mdpproblog.simulator">mdpproblog.simulator module</a></li>
 <li><a class="reference internal" href="#module-mdpproblog.value_iteration">mdpproblog.value_iteration module</a></li>
 <li><a class="reference internal" href="#module-mdpproblog">Module contents</a></li>
 </ul>
@@ -647,7 +777,7 @@ of iterations.</p>
         <li class="right" >
           <a href="index.html" title="Welcome to mdpproblog’s documentation!"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">mdpproblog v0.2.0-alpha documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">mdpproblog v0.3.0-alpha documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

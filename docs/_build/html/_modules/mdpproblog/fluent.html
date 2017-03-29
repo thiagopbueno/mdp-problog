@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>mdpproblog.fluent &#8212; mdpproblog v0.2.0-alpha documentation</title>
+    <title>mdpproblog.fluent &#8212; mdpproblog v0.3.0-alpha documentation</title>
     
     <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     'v0.2.0-alpha',
+        VERSION:     'v0.3.0-alpha',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -37,7 +37,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">mdpproblog v0.2.0-alpha documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">mdpproblog v0.3.0-alpha documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
       </ul>
     </div>  
@@ -63,130 +63,171 @@
 <span class="c1"># You should have received a copy of the GNU General Public License</span>
 <span class="c1"># along with MDP-ProbLog.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
 
-<span class="kn">from</span> <span class="nn">problog.logic</span> <span class="k">import</span> <span class="n">Term</span><span class="p">,</span> <span class="n">Constant</span>
-
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
 
+<span class="kn">from</span> <span class="nn">problog.logic</span> <span class="k">import</span> <span class="n">Constant</span>
+
+
 <div class="viewcode-block" id="Fluent"><a class="viewcode-back" href="../../mdpproblog.html#mdpproblog.fluent.Fluent">[docs]</a><span class="k">class</span> <span class="nc">Fluent</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-	<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">	Factory class for building fluent terms. A fluent term is a</span>
-<span class="sd">	problog.logic.Term with a problog.logic.Constant as last argument</span>
-<span class="sd">	representing its timestep.</span>
-<span class="sd">	&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Factory class for building fluent terms. A fluent term is a</span>
+<span class="sd">    problog.logic.Term with a problog.logic.Constant as last argument</span>
+<span class="sd">    representing its timestep.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-	<span class="nd">@classmethod</span>
-<div class="viewcode-block" id="Fluent.create_fluent"><a class="viewcode-back" href="../../mdpproblog.html#mdpproblog.fluent.Fluent.create_fluent">[docs]</a>	<span class="k">def</span> <span class="nf">create_fluent</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">term</span><span class="p">,</span> <span class="n">timestep</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;&quot;</span>
-<span class="sd">		Return a new fluent made from `term` with given `timestep`.</span>
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Fluent.create_fluent"><a class="viewcode-back" href="../../mdpproblog.html#mdpproblog.fluent.Fluent.create_fluent">[docs]</a>    <span class="k">def</span> <span class="nf">create_fluent</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">term</span><span class="p">,</span> <span class="n">timestep</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;&quot;</span>
+<span class="sd">        Return a new fluent made from `term` with given `timestep`.</span>
 
-<span class="sd">		:param term: any problog term</span>
-<span class="sd">		:type term: problog.logic.Term</span>
-<span class="sd">		:param timestep: timestep numeric value</span>
-<span class="sd">		:type timestep: int</span>
-<span class="sd">		:rtype: problog.logic.Term</span>
-<span class="sd">		&quot;&quot;&quot;</span>
-		<span class="n">args</span> <span class="o">=</span> <span class="n">term</span><span class="o">.</span><span class="n">args</span> <span class="o">+</span> <span class="p">(</span><span class="n">Constant</span><span class="p">(</span><span class="n">timestep</span><span class="p">),)</span>
-		<span class="k">return</span> <span class="n">term</span><span class="o">.</span><span class="n">with_args</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span></div></div>
+<span class="sd">        :param term: any problog term</span>
+<span class="sd">        :type term: problog.logic.Term</span>
+<span class="sd">        :param timestep: timestep numeric value</span>
+<span class="sd">        :type timestep: int</span>
+<span class="sd">        :rtype: problog.logic.Term</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">term</span><span class="o">.</span><span class="n">args</span> <span class="o">+</span> <span class="p">(</span><span class="n">Constant</span><span class="p">(</span><span class="n">timestep</span><span class="p">),)</span>
+        <span class="k">return</span> <span class="n">term</span><span class="o">.</span><span class="n">with_args</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="StateSpace"><a class="viewcode-back" href="../../mdpproblog.html#mdpproblog.fluent.StateSpace">[docs]</a><span class="k">class</span> <span class="nc">StateSpace</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-	<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">	Iterator class for looping over vector representations of</span>
-<span class="sd">	states in a factored MDP defined by `state_fluents`. Each state</span>
-<span class="sd">	is implemented by an OrderedDict of (problog.logic.Term, 0/1).</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Iterator class for looping over vector representations of</span>
+<span class="sd">    states in a factored MDP defined by `state_fluents`. Each state</span>
+<span class="sd">    is implemented by an OrderedDict of (problog.logic.Term, 0/1).</span>
 
-<span class="sd">	:param state_fluents: predicates defining a state in a given timestep</span>
-<span class="sd">	:type state_fluents: list of problog.logic.Term</span>
-<span class="sd">	&quot;&quot;&quot;</span>
+<span class="sd">    :param state_fluents: predicates defining a state in a given timestep</span>
+<span class="sd">    :type state_fluents: list of problog.logic.Term</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_fluents</span><span class="p">):</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">__state_fluents</span> <span class="o">=</span> <span class="n">state_fluents</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">__state_space_size</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__state_fluents</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_fluents</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__state_fluents</span> <span class="o">=</span> <span class="n">state_fluents</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__state_space_size</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__state_fluents</span><span class="p">)</span>
 
-	<span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Return the number of states of the state space. &quot;&quot;&quot;</span>
-		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__state_space_size</span>
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Return the number of states of the state space. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__state_space_size</span>
 
-	<span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Return an iterator over the state space. &quot;&quot;&quot;</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">__state_number</span> <span class="o">=</span> <span class="mi">0</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">__state</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">([</span> <span class="p">(</span><span class="n">fluent</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">fluent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__state_fluents</span> <span class="p">])</span>
-		<span class="k">return</span> <span class="bp">self</span>
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Return an iterator over the state space. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__state_number</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__state</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">([</span> <span class="p">(</span><span class="n">fluent</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">fluent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__state_fluents</span> <span class="p">])</span>
+        <span class="k">return</span> <span class="bp">self</span>
 
-	<span class="k">def</span> <span class="nf">__next__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Return next state representation. &quot;&quot;&quot;</span>
-		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__state_number</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">__state_space_size</span><span class="p">:</span>
-			<span class="k">raise</span> <span class="ne">StopIteration</span>
+    <span class="k">def</span> <span class="nf">__next__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Return representation of next state in the sequence. &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__state_number</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">__state_space_size</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">StopIteration</span>
 
-		<span class="k">for</span> <span class="n">fluent</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__state</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-			<span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-				<span class="bp">self</span><span class="o">.</span><span class="n">__state</span><span class="p">[</span><span class="n">fluent</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-			<span class="k">else</span><span class="p">:</span>
-				<span class="bp">self</span><span class="o">.</span><span class="n">__state</span><span class="p">[</span><span class="n">fluent</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-				<span class="k">break</span>
+        <span class="k">for</span> <span class="n">fluent</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__state</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__state</span><span class="p">[</span><span class="n">fluent</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__state</span><span class="p">[</span><span class="n">fluent</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="k">break</span>
 
-		<span class="bp">self</span><span class="o">.</span><span class="n">__state_number</span> <span class="o">+=</span> <span class="mi">1</span>
-		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__state_number</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__state</span>
 
-	<span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">		Return the state representation with given `index`.</span>
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the state representation with given `index`.</span>
 
-<span class="sd">		:param index: state index in state space</span>
-<span class="sd">		:type index: int</span>
-<span class="sd">		&quot;&quot;&quot;</span>
-		<span class="n">state</span> <span class="o">=</span> <span class="p">[]</span>
-		<span class="k">for</span> <span class="n">fluent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__state_fluents</span><span class="p">:</span>
-			<span class="n">value</span> <span class="o">=</span> <span class="n">index</span> <span class="o">%</span> <span class="mi">2</span>
-			<span class="n">index</span> <span class="o">//=</span> <span class="mi">2</span>
-			<span class="n">state</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">fluent</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
-		<span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">state</span><span class="p">)</span></div>
+<span class="sd">        :param index: state index in state space</span>
+<span class="sd">        :type index: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">fluent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__state_fluents</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">index</span> <span class="o">%</span> <span class="mi">2</span>
+            <span class="n">index</span> <span class="o">//=</span> <span class="mi">2</span>
+            <span class="n">state</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">fluent</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="StateSpace.state"><a class="viewcode-back" href="../../mdpproblog.html#mdpproblog.fluent.StateSpace.state">[docs]</a>    <span class="k">def</span> <span class="nf">state</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">valuation</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the state representation of a `valuation` of fluents.</span>
+
+<span class="sd">        :param valuation: mapping from fluent to boolean value</span>
+<span class="sd">        :type valuation: list of pairs (Fluent, bool)</span>
+<span class="sd">        :rtype: OrderedDict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">OrderedDict</span><span class="p">(</span><span class="n">valuation</span><span class="p">)</span></div>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="StateSpace.index"><a class="viewcode-back" href="../../mdpproblog.html#mdpproblog.fluent.StateSpace.index">[docs]</a>    <span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the `state` index in the state space.</span>
+
+<span class="sd">        :param state: state representation</span>
+<span class="sd">        :type state: OrderedDict</span>
+<span class="sd">        :rtype: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">state</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">index</span> <span class="o">+=</span> <span class="n">value</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">**</span> <span class="n">i</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">index</span></div></div>
 
 
 <div class="viewcode-block" id="ActionSpace"><a class="viewcode-back" href="../../mdpproblog.html#mdpproblog.fluent.ActionSpace">[docs]</a><span class="k">class</span> <span class="nc">ActionSpace</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-	<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">	Iterator class for looping over vector representations of</span>
-<span class="sd">	`actions` in a factored MDP. Each action is implemented by</span>
-<span class="sd">	an OrderedDict of (problog.logic.Term, 0/1).</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Iterator class for looping over vector representations of</span>
+<span class="sd">    `actions` in a factored MDP. Each action is implemented by</span>
+<span class="sd">    an OrderedDict of (problog.logic.Term, 0/1).</span>
 
-<span class="sd">	:param actions: predicates listing possible actions</span>
-<span class="sd">	:type actions: list of problog.logic.Term</span>
-<span class="sd">	&quot;&quot;&quot;</span>
+<span class="sd">    :param actions: predicates listing possible actions</span>
+<span class="sd">    :type actions: list of problog.logic.Term</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">actions</span><span class="p">):</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">__actions</span> <span class="o">=</span> <span class="n">actions</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">__action_space_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__actions</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">actions</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__actions</span> <span class="o">=</span> <span class="n">actions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__action_space_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__actions</span><span class="p">)</span>
 
-	<span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Return the number of actions of the action space. &quot;&quot;&quot;</span>
-		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__action_space_size</span>
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Return the number of actions of the action space. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__action_space_size</span>
 
-	<span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Return an iterator over the action space. &quot;&quot;&quot;</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">__action_number</span> <span class="o">=</span> <span class="mi">0</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">__action</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">([</span> <span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">action</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__actions</span> <span class="p">])</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">__action</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__actions</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">1</span>
-		<span class="k">return</span> <span class="bp">self</span>
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Return an iterator over the action space. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__action_number</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__action</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">([</span> <span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">action</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__actions</span> <span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__action</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__actions</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="bp">self</span>
 
-	<span class="k">def</span> <span class="nf">__next__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot; Return next action representation. &quot;&quot;&quot;</span>
-		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__action_number</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">__action_space_size</span><span class="p">:</span>
-			<span class="k">raise</span> <span class="ne">StopIteration</span>
+    <span class="k">def</span> <span class="nf">__next__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Return representation of next action in the sequence. &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__action_number</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">__action_space_size</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">StopIteration</span>
 
-		<span class="bp">self</span><span class="o">.</span><span class="n">__action</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__actions</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__action_number</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">0</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">__action</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__actions</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__action_number</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__action</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__actions</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__action_number</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__action</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__actions</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__action_number</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">1</span>
 
-		<span class="bp">self</span><span class="o">.</span><span class="n">__action_number</span> <span class="o">+=</span> <span class="mi">1</span>
-		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__action</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__action_number</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__action</span>
 
-	<span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">		Return the action representation with given `index`.</span>
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the action representation with given `index`.</span>
 
-<span class="sd">		:param index: action index in action space</span>
-<span class="sd">		:type index: int</span>
-<span class="sd">		&quot;&quot;&quot;</span>
-		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__actions</span><span class="p">[</span><span class="n">index</span><span class="p">]</span></div>
+<span class="sd">        :param index: action index in action space</span>
+<span class="sd">        :type index: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__actions</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="ActionSpace.index"><a class="viewcode-back" href="../../mdpproblog.html#mdpproblog.fluent.ActionSpace.index">[docs]</a>    <span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return action index in the action space.</span>
+
+<span class="sd">        :param action: action representation</span>
+<span class="sd">        :type action: OrderedDict</span>
+<span class="sd">        :rtype: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">fluent</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">action</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">action</span><span class="p">[</span><span class="n">fluent</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">index</span></div></div>
 </pre></div>
 
           </div>
@@ -217,7 +258,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">mdpproblog v0.2.0-alpha documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">mdpproblog v0.3.0-alpha documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
       </ul>
     </div>

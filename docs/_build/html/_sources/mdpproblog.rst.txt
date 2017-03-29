@@ -28,6 +28,14 @@ mdpproblog.mdp module
     :undoc-members:
     :show-inheritance:
 
+mdpproblog.simulator module
+---------------------------
+
+.. automodule:: mdpproblog.simulator
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 mdpproblog.value_iteration module
 ---------------------------------
 
