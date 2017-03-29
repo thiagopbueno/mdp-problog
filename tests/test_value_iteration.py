@@ -17,67 +17,69 @@
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../mdpproblog'))
 
 import unittest
 
-import mdpproblog.mdp as mdp
-import mdpproblog.value_iteration as vi
+import mdp as mdp
+import value_iteration as vi
+
 
 class TestValueIteration(unittest.TestCase):
 
-	@classmethod
-	def setUp(cls):
-		cls.models = {
-			'sysadmin':
-				"""
-				computer(c1). computer(c2). computer(c3).
-				connected(c1,[c2,c3]). connected(c2,[c1]). connected(c3,[c1]).
+    @classmethod
+    def setUp(cls):
+        cls.models = {
+            'sysadmin':
+                """
+                computer(c1). computer(c2). computer(c3).
+                connected(c1,[c2,c3]). connected(c2,[c1]). connected(c3,[c1]).
 
-				accTotal([],A,A).
-				accTotal([_|T],A,X) :- B is A+1, accTotal(T,B,X).
-				total(L,T) :- accTotal(L,0,T).
-				total_connected(C,T) :- connected(C,L), total(L,T).
+                accTotal([],A,A).
+                accTotal([_|T],A,X) :- B is A+1, accTotal(T,B,X).
+                total(L,T) :- accTotal(L,0,T).
+                total_connected(C,T) :- connected(C,L), total(L,T).
 
-				accAlive([],A,A).
-				accAlive([H|T],A,X) :- running(H,0), B is A+1, accAlive(T,B,X).
-				accAlive([H|T],A,X) :- not(running(H,0)), B is A, accAlive(T,B,X).
-				alive(L,A) :- accAlive(L,0,A).
-				total_running(C,R) :- connected(C,L), alive(L,R).
+                accAlive([],A,A).
+                accAlive([H|T],A,X) :- running(H,0), B is A+1, accAlive(T,B,X).
+                accAlive([H|T],A,X) :- not(running(H,0)), B is A, accAlive(T,B,X).
+                alive(L,A) :- accAlive(L,0,A).
+                total_running(C,R) :- connected(C,L), alive(L,R).
 
-				state_fluent(running(C)) :- computer(C).
+                state_fluent(running(C)) :- computer(C).
 
-				action(reboot(none)).
-				action(reboot(C)) :- computer(C).
+                action(reboot(none)).
+                action(reboot(C)) :- computer(C).
 
-				1.00::running(C,1) :- reboot(C).
-				0.05::running(C,1) :- not(reboot(C)), not(running(C,0)).
-				P::running(C,1)    :- not(reboot(C)), running(C,0),
-				                      total_connected(C,T), total_running(C,R), P is 0.45+0.50*R/T.
+                1.00::running(C,1) :- reboot(C).
+                0.05::running(C,1) :- not(reboot(C)), not(running(C,0)).
+                P::running(C,1)    :- not(reboot(C)), running(C,0),
+                                      total_connected(C,T), total_running(C,R), P is 0.45+0.50*R/T.
 
-				utility(running(C,0),  1.00) :- computer(C).
+                utility(running(C,0),  1.00) :- computer(C).
 
-				utility(reboot(C), -0.75) :- computer(C).
-				utility(reboot(none), 0.00).
-				"""
-		}
+                utility(reboot(C), -0.75) :- computer(C).
+                utility(reboot(none), 0.00).
+                """
+        }
 
-		cls.mdp = mdp.MDP(cls.models['sysadmin'])
-		cls.vi  = vi.ValueIteration(cls.mdp)
+        cls.mdp = mdp.MDP(cls.models['sysadmin'])
+        cls.vi  = vi.ValueIteration(cls.mdp)
 
-	def test_value_iteration(self):
-		V, policy, iteration = self.vi.run()
-		expected_policy = [
-			'reboot(c1)',
-			'reboot(c3)',
-			'reboot(c1)',
-			'reboot(c3)',
-			'reboot(c1)',
-			'reboot(c2)',
-			'reboot(c1)',
-			'reboot(none)'
-		]
-		self.assertEqual([a.__str__() for s,a in policy.items()], expected_policy)
+    def test_value_iteration(self):
+        V, policy, iteration = self.vi.run()
+        expected_policy = [
+            'reboot(c1)',
+            'reboot(c3)',
+            'reboot(c1)',
+            'reboot(c3)',
+            'reboot(c1)',
+            'reboot(c2)',
+            'reboot(c1)',
+            'reboot(none)'
+        ]
+        self.assertEqual([a.__str__() for s, a in policy.items()], expected_policy)
+
 
 if __name__ == '__main__':
-	unittest.main(verbosity=2)
+    unittest.main(verbosity=2)
