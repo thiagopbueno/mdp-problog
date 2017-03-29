@@ -13,8 +13,8 @@
 # You should have received a copy of the GNU General Public License
 # along with MDP-ProbLog.  If not, see <http://www.gnu.org/licenses/>.
 
-import engine as eng
-from fluent import Fluent, StateSpace, ActionSpace
+import mdpproblog.engine as eng
+from mdpproblog.fluent import Fluent, StateSpace, ActionSpace
 
 
 class MDP(object):
