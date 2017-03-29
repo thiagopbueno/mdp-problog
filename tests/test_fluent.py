@@ -17,62 +17,65 @@
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../mdpproblog'))
 
 import unittest
 from mdpproblog.fluent import Fluent, StateSpace, ActionSpace
 
 from problog.logic import Term, Constant
 
+
 class TestFluent(unittest.TestCase):
 
-	def test_fluent(self):
-		terms = [
-			Term('t0'),
-			Term('t1', args=(Constant('c1'),)),
-			Term('t2', args=(Constant('c1'), Constant('c2')))
-		]
-		for term in terms:
-			for timestep in range(2):
-				fluent = Fluent.create_fluent(term, timestep)
-				self.assertEqual(fluent.functor, term.functor)
-				self.assertEqual(fluent.arity, term.arity+1)
-				self.assertEqual(fluent.args[:-1], term.args)
-				self.assertEqual(fluent.args[-1], Constant(timestep))
+    def test_fluent(self):
+        terms = [
+            Term('t0'),
+            Term('t1', args=(Constant('c1'),)),
+            Term('t2', args=(Constant('c1'), Constant('c2')))
+        ]
+        for term in terms:
+            for timestep in range(2):
+                fluent = Fluent.create_fluent(term, timestep)
+                self.assertEqual(fluent.functor, term.functor)
+                self.assertEqual(fluent.arity, term.arity + 1)
+                self.assertEqual(fluent.args[:-1], term.args)
+                self.assertEqual(fluent.args[-1], Constant(timestep))
+
 
 class TestStateSpace(unittest.TestCase):
 
-	def test_state_space(self):
-		running = Term('running')
-		fluents = [ running.with_args(Constant('c%d' % i), Constant(0)) for i in range(1,4) ]
-		states = StateSpace(fluents)
-		for i, state in enumerate(states):
-			self.assertEqual(len(state), 3)
-			n = 0
-			for j, (fluent, value) in enumerate(state.items()):
-				self.assertEqual(fluent.functor, 'running')
-				self.assertEqual(fluent.args[0], 'c%d' % (j+1))
-				self.assertEqual(fluent.args[-1], 0)
-				n += value * (2**j)
-			self.assertEqual(n, i)
+    def test_state_space(self):
+        running = Term('running')
+        fluents = [ running.with_args(Constant('c%d' % i), Constant(0)) for i in range(1, 4) ]
+        states = StateSpace(fluents)
+        for i, state in enumerate(states):
+            self.assertEqual(len(state), 3)
+            n = 0
+            for j, (fluent, value) in enumerate(state.items()):
+                self.assertEqual(fluent.functor, 'running')
+                self.assertEqual(fluent.args[0], 'c%d' % (j + 1))
+                self.assertEqual(fluent.args[-1], 0)
+                n += value * (2**j)
+            self.assertEqual(n, i)
+
 
 class TestActionSpace(unittest.TestCase):
 
-	def test_action_space(self):
-		reboot = Term('reboot')
-		computers = [ Constant('c%i' % i) for i in range(1,4) ]
-		fluents = [ reboot(c) for c in computers ]
-		fluents.append(reboot(Constant('none')))
-		actions = ActionSpace(fluents)
-		for i, action in enumerate(actions):
-			self.assertEqual(sum(action.values()), 1)
-			for j, (fluent, value) in enumerate(action.items()):
-				self.assertEqual(fluent, fluents[j])
-				if j == i:
-					self.assertEqual(value, 1)
-				else:
-					self.assertEqual(value, 0)
+    def test_action_space(self):
+        reboot = Term('reboot')
+        computers = [ Constant('c%i' % i) for i in range(1, 4) ]
+        fluents = [ reboot(c) for c in computers ]
+        fluents.append(reboot(Constant('none')))
+        actions = ActionSpace(fluents)
+        for i, action in enumerate(actions):
+            self.assertEqual(sum(action.values()), 1)
+            for j, (fluent, value) in enumerate(action.items()):
+                self.assertEqual(fluent, fluents[j])
+                if j == i:
+                    self.assertEqual(value, 1)
+                else:
+                    self.assertEqual(value, 0)
 
 
 if __name__ == '__main__':
-	unittest.main(verbosity=2)
+    unittest.main(verbosity=2)
