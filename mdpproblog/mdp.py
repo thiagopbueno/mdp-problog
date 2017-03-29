@@ -16,133 +16,183 @@
 import mdpproblog.engine as eng
 from mdpproblog.fluent import Fluent, StateSpace, ActionSpace
 
+
 class MDP(object):
-	"""
-	Representation of an MDP and its components. Implemented as a bridge
-	class to the ProbLog programs specifying the MDP domain and problems.
+    """
+    Representation of an MDP and its components. Implemented as a bridge
+    class to the ProbLog programs specifying the MDP domain and problems.
 
-	:param model: a valid MDP-ProbLog program
-	:type model: str
-	"""
+    :param model: a valid MDP-ProbLog program
+    :type model: str
+    """
 
-	def __init__(self, model):
-		self._model = model
-		self._engine = eng.Engine(model)
+    def __init__(self, model):
+        self._model = model
+        self._engine = eng.Engine(model)
 
-		self.__prepare()
+        self.__transition_cache = {}
+        self.__reward_cache = {}
 
-	def __prepare(self):
-		""" Prepare the mdp-problog knowledge database to accept queries. """
+        self.__prepare()
 
-		# add dummy current state fluents probabilistic facts
-		for term in self.state_fluents():
-			self._engine.add_fact(Fluent.create_fluent(term, 0), 0.5)
+    def __prepare(self):
+        """ Prepare the mdp-problog knowledge database to accept queries. """
 
-		# add dummy actions annotated disjunction
-		actions = self.actions()
-		self._engine.add_annotated_disjunction(actions, [1.0/len(actions)]*len(actions))
+        # add dummy current state fluents probabilistic facts
+        for term in self.state_fluents():
+            self._engine.add_fact(Fluent.create_fluent(term, 0), 0.5)
 
-		# ground the mdp-problog program
-		self.__utilities = self._engine.assignments('utility')
-		next_state_fluents = self.next_state_fluents()
-		queries = list(set(self.__utilities) | set(next_state_fluents) | set(actions))
-		self._engine.relevant_ground(queries)
+        # add dummy actions annotated disjunction
+        actions = self.actions()
+        self._engine.add_annotated_disjunction(actions, [1.0 / len(actions)] * len(actions))
 
-		# compile query database
-		self.__next_state_queries = self._engine.compile(next_state_fluents)
-		self.__reward_queries = self._engine.compile(self.__utilities)
+        # ground the mdp-problog program
+        self.__utilities = self._engine.assignments('utility')
+        next_state_fluents = self.next_state_fluents()
+        queries = list(set(self.__utilities) | set(next_state_fluents) | set(actions))
+        self._engine.relevant_ground(queries)
 
-	def state_fluents(self):
-		"""
-		Return an ordered list of state fluent objects.
+        # compile query database
+        self.__next_state_queries = self._engine.compile(next_state_fluents)
+        self.__reward_queries = self._engine.compile(self.__utilities)
 
-		:rtype: list of state fluent objects sorted by string representation
-		"""
-		return sorted(self._engine.declarations('state_fluent'), key=str)
+    def state_fluents(self):
+        """
+        Return an ordered list of state fluent objects.
 
-	def current_state_fluents(self):
-		"""
-		Return the ordered list of current state fluent objects.
+        :rtype: list of state fluent objects sorted by string representation
+        """
+        return sorted(self._engine.declarations('state_fluent'), key=str)
 
-		:rtype: list of current state fluent objects sorted by string representation
-		"""
-		return [Fluent.create_fluent(f, 0) for f in self.state_fluents()]
+    def current_state_fluents(self):
+        """
+        Return the ordered list of current state fluent objects.
 
-	def next_state_fluents(self):
-		"""
-		Return the ordered list of next state fluent objects.
+        :rtype: list of current state fluent objects sorted by string representation
+        """
+        return [Fluent.create_fluent(f, 0) for f in self.state_fluents()]
 
-		:rtype: list of next state fluent objects sorted by string representation
-		"""
-		return [Fluent.create_fluent(f, 1) for f in self.state_fluents()]
+    def next_state_fluents(self):
+        """
+        Return the ordered list of next state fluent objects.
 
-	def actions(self):
-		"""
-		Return an ordered list of action objects.
+        :rtype: list of next state fluent objects sorted by string representation
+        """
+        return [Fluent.create_fluent(f, 1) for f in self.state_fluents()]
 
-		:rtype: list of action objects sorted by string representation
-		"""
-		return sorted(self._engine.declarations('action'), key=str)
+    def actions(self):
+        """
+        Return an ordered list of action objects.
 
-	def transition(self, state, action):
-		"""
-		Return the probabilities of next state fluents given current
-		`state` and `action`.
+        :rtype: list of action objects sorted by string representation
+        """
+        return sorted(self._engine.declarations('action'), key=str)
 
-		:param state: state vector representation of current state fluents
-		:type state: list of 0/1 according to state fluents order
-		:param action: action vector representation
-		:type action: one-hot vector encoding of action as a list of 0/1
-		:rtype: list of pairs (problog.logic.Term, float)
-		"""
-		evidence = state.copy()
-		evidence.update(action)
-		return self._engine.evaluate(self.__next_state_queries, evidence)
+    def transition(self, state, action, cache=None):
+        """
+        Return the probabilities of next state fluents given current
+        `state` and `action`. Cache results optionally if parameter
+        `cache` is given.
 
-	def transition_model(self):
-		"""
-		Return the transition model of all valid transitions.
+        :param state: state vector representation of current state fluents
+        :type state: list of 0/1 according to state fluents order
+        :param action: action vector representation
+        :type action: one-hot vector encoding of action as a list of 0/1
+        :param cache: key to cache results
+        :type cache: immutable, hashable object
+        :rtype: list of pairs (problog.logic.Term, float)
+        """
+        if cache is None:
+            return self.__transition(state, action)
 
-		:rtype: dict of ((state,action), list of probabilities)
-		"""
-		transitions = {}
-		states  = StateSpace(self.current_state_fluents())
-		actions = ActionSpace(self.actions())
-		for state in states:
-			for action in actions:
-				probabilities = self.transition(state, action)
-				transitions[(tuple(state.values()), tuple(action.values()))] = probabilities
-		return transitions
+        transition = self.__transition_cache.get(cache, None)
+        if transition is None:
+            transition = self.__transition(state, action)
+            self.__transition_cache[cache] = transition
+        return transition
 
-	def reward(self, state, action):
-		"""
-		Return the immediate reward value of the transition
-		induced by applying `action` to the given `state`.
+    def __transition(self, state, action):
+        """
+        Return the probabilities of next state fluents given current
+        `state` and `action`.
 
-		:param state: state vector representation of current state fluents
-		:type state: list of 0/1 according to state fluents order
-		:param action: action vector representation
-		:type action: one-hot vector encoding of action as a list of 0/1
-		:rtype: float
-		"""
-		evidence = state.copy()
-		evidence.update(action)
-		total = 0
-		for term, prob in self._engine.evaluate(self.__reward_queries, evidence):
-			total += prob * self.__utilities[term].value
-		return total
+        :param state: state vector representation of current state fluents
+        :type state: list of 0/1 according to state fluents order
+        :param action: action vector representation
+        :type action: one-hot vector encoding of action as a list of 0/1
+        :rtype: list of pairs (problog.logic.Term, float)
+        """
+        evidence = state.copy()
+        evidence.update(action)
+        return self._engine.evaluate(self.__next_state_queries, evidence)
 
-	def reward_model(self):
-		"""
-		Return the reward model of all valid transitions.
+    def transition_model(self):
+        """
+        Return the transition model of all valid transitions.
 
-		:rtype: dict of ((state,action), float)
-		"""
-		rewards = {}
-		states  = StateSpace(self.current_state_fluents())
-		actions = ActionSpace(self.actions())
-		for state in states:
-			for action in actions:
-				reward = self.reward(state, action)
-				rewards[(tuple(state.values()), tuple(action.values()))] = reward
-		return rewards
+        :rtype: dict of ((state,action), list of probabilities)
+        """
+        transitions = {}
+        states  = StateSpace(self.current_state_fluents())
+        actions = ActionSpace(self.actions())
+        for state in states:
+            for action in actions:
+                probabilities = self.transition(state, action)
+                transitions[(tuple(state.values()), tuple(action.values()))] = probabilities
+        return transitions
+
+    def reward(self, state, action, cache=None):
+        """
+        Return the immediate reward value of the transition
+        induced by applying `action` to the given `state`.
+        Cache results optionally if parameter `cache` is given.
+
+        :param state: state vector representation of current state fluents
+        :type state: list of 0/1 according to state fluents order
+        :param action: action vector representation
+        :type action: one-hot vector encoding of action as a list of 0/1
+        :param cache: key to cache results
+        :type cache: immutable, hashable object
+        :rtype: float
+        """
+        if cache is None:
+            return self.__reward(state, action)
+
+        value = self.__reward_cache.get(cache, None)
+        if value is None:
+            value = self.__reward(state, action)
+            self.__reward_cache[cache] = value
+        return value
+
+    def __reward(self, state, action):
+        """
+        Return the immediate reward value of the transition
+        induced by applying `action` to the given `state`.
+
+        :param state: state vector representation of current state fluents
+        :type state: list of 0/1 according to state fluents order
+        :param action: action vector representation
+        :type action: one-hot vector encoding of action as a list of 0/1
+        :rtype: float
+        """
+        evidence = state.copy()
+        evidence.update(action)
+        total = 0
+        for term, prob in self._engine.evaluate(self.__reward_queries, evidence):
+            total += prob * self.__utilities[term].value
+        return total
+
+    def reward_model(self):
+        """
+        Return the reward model of all valid transitions.
+
+        :rtype: dict of ((state,action), float)
+        """
+        rewards = {}
+        states  = StateSpace(self.current_state_fluents())
+        actions = ActionSpace(self.actions())
+        for state in states:
+            for action in actions:
+                reward = self.reward(state, action)
+                rewards[(tuple(state.values()), tuple(action.values()))] = reward
+        return rewards

@@ -1,8 +1,8 @@
 MDP-ProbLog
 ===========
 
-    MDP-ProbLog is a framework to represent and solve (infinite-horizon)
-    MDPs by probabilistic logic programming.
+    MDP-ProbLog is a Python3 framework to represent and solve (infinite-horizon)
+    MDPs using Probabilistic Logic Programming.
 
 Install
 -------
@@ -19,13 +19,16 @@ Usage
 ::
 
     $ mdp-problog --help
-    usage: usage: mdp-problog {list,display,solve} [-m DOMAIN INSTANCE] [OPTIONS]
+    usage: mdp-problog {list, show, simulate, solve} [-m DOMAIN INSTANCE] [OPTIONS]
 
-    MDP-ProbLog is a framework to represent and solve MDPs by Probabilistic Logic
-    Programming.
+    MDP-ProbLog is a Python3 framework to represent and solve Markovian Decision
+    Processes by Probabilistic Logic Programming. This project is free software.
+    Please check the documentation at http://pythonhosted.org/mdpproblog/.
 
     positional arguments:
-      {list,show,solve}     available commands.
+      {list,show,solve,simulate}
+                            available commands: list examples, show and solve
+                            models or simulate optimal policy
 
     optional arguments:
       -h, --help            show this help message and exit
@@ -37,6 +40,10 @@ Usage
                             discount factor (default=0.9)
       -e EPSILON, --epsilon EPSILON
                             maximum error (default=0.1)
+      -t TRIALS, --trials TRIALS
+                            number of trials (default=100)
+      -z HORIZON, --horizon HORIZON
+                            simulation horizon (default=30)
 
 Input
 -----
@@ -88,7 +95,7 @@ Example
 
 ::
 
-    $ mdp-problog solve -x sysadmin1
+    $ mdp-problog simulate -x sysadmin1
 
     Value(running(c1,0)=0, running(c2,0)=0, running(c3,0)=0) = 16.829
     Value(running(c1,0)=1, running(c2,0)=0, running(c3,0)=0) = 19.171
@@ -108,8 +115,17 @@ Example
     Policy(running(c1,0)=0, running(c2,0)=1, running(c3,0)=1) = reboot(c1)
     Policy(running(c1,0)=1, running(c2,0)=1, running(c3,0)=1) = reboot(none)
 
-    >> Value iteration converged in 0.168sec after 40 iterations.
-    >> Average time per iteration = 0.004sec.
+    >> Value iteration converged in 0.196sec after 40 iterations.
+    >> Average time per iteration = 0.005sec.
+
+    Expectation(running(c1,0)=0, running(c2,0)=0, running(c3,0)=0) = 16.733
+    Expectation(running(c1,0)=1, running(c2,0)=0, running(c3,0)=0) = 19.433
+    Expectation(running(c1,0)=0, running(c2,0)=1, running(c3,0)=0) = 19.108
+    Expectation(running(c1,0)=1, running(c2,0)=1, running(c3,0)=0) = 23.377
+    Expectation(running(c1,0)=0, running(c2,0)=0, running(c3,0)=1) = 19.546
+    Expectation(running(c1,0)=1, running(c2,0)=0, running(c3,0)=1) = 23.287
+    Expectation(running(c1,0)=0, running(c2,0)=1, running(c3,0)=1) = 21.785
+    Expectation(running(c1,0)=1, running(c2,0)=1, running(c3,0)=1) = 25.849
 
 License
 -------

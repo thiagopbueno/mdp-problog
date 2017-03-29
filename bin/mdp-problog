@@ -17,11 +17,14 @@
 
 import argparse
 import os
+import sys
 import time
 
 import mdpproblog
 from mdpproblog.mdp import MDP
 from mdpproblog.value_iteration import ValueIteration
+from mdpproblog.simulator import Simulator
+from mdpproblog.fluent import StateSpace
 
 MODELS = {
     'sysadmin1' : ['sysadmin',       'domain.pl',  'star2.pl'],
@@ -34,7 +37,7 @@ MODELS = {
 
 
 def parse():
-    usage = "mdp-problog {list, show, solve} [-m DOMAIN INSTANCE] [OPTIONS]"
+    usage = "mdp-problog {list, show, simulate, solve} [-m DOMAIN INSTANCE] [OPTIONS]"
     description = """
         MDP-ProbLog is a Python3 framework to represent and solve
         Markovian Decision Processes by Probabilistic Logic Programming.
@@ -44,12 +47,18 @@ def parse():
         Please check the documentation at http://pythonhosted.org/mdpproblog/.
         """.strip()
 
+    help_commands = """
+        available commands: list examples, show and solve models or simulate optimal policy
+        """.strip()
+
     parser = argparse.ArgumentParser(usage=usage, description=description)
-    parser.add_argument("command", choices=['list', 'show', 'solve'], help="available commands.")
+    parser.add_argument("command", choices=['list', 'show', 'solve', 'simulate'], help=help_commands)
     parser.add_argument("-m", "--model", nargs=2, help="list of domain and instance files")
     parser.add_argument("-x", "--example", type=str, help="select model from examples")
-    parser.add_argument("-g", "--gamma",   type=float, default=0.9, help="discount factor (default=0.9)")
-    parser.add_argument("-e", "--epsilon", type=float, default=0.1, help="maximum error   (default=0.1)")
+    parser.add_argument("-g", "--gamma",   type=float, default=0.9, help="discount factor    (default=0.9)")
+    parser.add_argument("-e", "--epsilon", type=float, default=0.1, help="maximum error      (default=0.1)")
+    parser.add_argument("-t", "--trials",  type=int,   default=100, help="number of trials   (default=100)")
+    parser.add_argument("-z", "--horizon", type=int,   default=50,  help="simulation horizon (default=50)")
     return parser.parse_args()
 
 
@@ -114,7 +123,7 @@ if __name__ == '__main__':
     if args.command == 'show':
         show_model(domain, instance)
 
-    if args.command == 'solve':
+    if args.command in ['solve', 'simulate']:
         domain, instance = load_model(domain, instance)
         model = domain + instance
         mdp = MDP(model)
@@ -124,3 +133,12 @@ if __name__ == '__main__':
         uptime = end - start
 
         print_solution(V, policy, iterations, uptime)
+
+        if args.command == 'simulate':
+            simulator = Simulator(mdp, policy)
+            states  = StateSpace(mdp.current_state_fluents())
+            print()
+            for i, state in enumerate(states):
+                avg, _, _ = simulator.run(args.trials, args.horizon, states[i], args.gamma)
+                state = ', '.join(["{f}={v}".format(f=f, v=v) for f, v in states[i]])
+                print("Expectation({state}) = {value:.3f}".format(state=state, value=avg))
