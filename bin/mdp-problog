@@ -20,12 +20,11 @@ import os
 import sys
 import time
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../mdpproblog'))
 import mdpproblog
-from mdp import MDP
-from value_iteration import ValueIteration
-from simulator import Simulator
-from fluent import StateSpace
+from mdpproblog.mdp import MDP
+from mdpproblog.value_iteration import ValueIteration
+from mdpproblog.simulator import Simulator
+from mdpproblog.fluent import StateSpace
 
 MODELS = {
     'sysadmin1' : ['sysadmin',       'domain.pl',  'star2.pl'],
@@ -59,7 +58,7 @@ def parse():
     parser.add_argument("-g", "--gamma",   type=float, default=0.9, help="discount factor    (default=0.9)")
     parser.add_argument("-e", "--epsilon", type=float, default=0.1, help="maximum error      (default=0.1)")
     parser.add_argument("-t", "--trials",  type=int,   default=100, help="number of trials   (default=100)")
-    parser.add_argument("-z", "--horizon", type=int,   default=30,  help="simulation horizon (default=30)")
+    parser.add_argument("-z", "--horizon", type=int,   default=50,  help="simulation horizon (default=50)")
     return parser.parse_args()
 
 
