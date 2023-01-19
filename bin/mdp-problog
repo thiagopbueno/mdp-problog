@@ -127,9 +127,9 @@ if __name__ == '__main__':
         domain, instance = load_model(domain, instance)
         model = domain + instance
         mdp = MDP(model)
-        start = time.clock()
+        start = time.perf_counter()
         V, policy, iterations = solve_model(mdp, args.gamma, args.epsilon)
-        end = time.clock()
+        end = time.perf_counter()
         uptime = end - start
 
         print_solution(V, policy, iterations, uptime)
